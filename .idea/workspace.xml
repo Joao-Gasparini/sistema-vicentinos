@@ -4,39 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/sistema-vicentinos.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/_asyncio.pyd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/_bz2.pyd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/_ctypes.pyd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/_ctypes_test.pyd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/_decimal.pyd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/libcrypto-3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/libffi-8.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/libssl-3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/pyexpat.pyd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/python.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/python3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/python313.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/pythonw.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/select.pyd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/sqlite3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/tcl86t.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/tk86t.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/unicodedata.pyd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/vcruntime140.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/vcruntime140_1.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/winsound.pyd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/Scripts/zlib1.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/pyvenv.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pyvenv.cfg" afterDir="false" />
+    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="login">
+      <change afterPath="$PROJECT_DIR$/templates/esqueci_senha.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/redefinir_senha.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/reenviar_confirmacao.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,6 +74,19 @@
       <option name="presentableId" value="Default" />
       <updated>1773410679555</updated>
     </task>
+    <task id="LOCAL-00001" summary="login">
+      <option name="closed" value="true" />
+      <created>1773754317698</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1773754317698</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="login" />
+    <option name="LAST_COMMIT_MESSAGE" value="login" />
   </component>
 </project>

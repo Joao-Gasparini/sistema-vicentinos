@@ -8,12 +8,13 @@ class Vicentino(db.Model):
     __tablename__ = 'vicentinos'
 
     id = db.Column(db.Integer, primary_key=True)
-    nome_completo = db.Column(db.String(150), nullable=False)
+    nome = db.Column(db.String(80), nullable=False)
+    sobrenome = db.Column(db.String(120), nullable=False)
     cpf = db.Column(db.String(14), unique=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
     telefone = db.Column(db.String(20))
     senha_hash = db.Column(db.String(255), nullable=False)
-    status = db.Column(db.String(10), default='ativo')
+    status = db.Column(db.String(10), default='pendente')
     email_confirmado = db.Column(db.Boolean, default=False)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
     data_confirmacao = db.Column(db.DateTime, nullable=True)

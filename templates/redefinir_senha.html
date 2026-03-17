@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">Redefinir senha</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="form-redefinir">
+                    <div class="mb-3">
+                        <label class="form-label">Nova senha</label>
+                        <input type="password" name="senha" id="senha" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Confirmar nova senha</label>
+                        <input type="password" name="confirmar_senha" id="confirmar_senha" class="form-control" required>
+                        <div id="mensagem-senha" class="form-text"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-info text-white w-100">Salvar nova senha</button>
+                </form>
+
+                <hr>
+                <p class="text-center mb-0">
+                    <a href="{{ url_for('login') }}">Voltar para o login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const senha = document.getElementById('senha');
+    const confirmarSenha = document.getElementById('confirmar_senha');
+    const mensagemSenha = document.getElementById('mensagem-senha');
+    const formRedefinir = document.getElementById('form-redefinir');
+
+    function validarSenhas() {
+        if (confirmarSenha.value === '') {
+            mensagemSenha.textContent = '';
+            confirmarSenha.classList.remove('is-valid', 'is-invalid');
+            return;
+        }
+
+        if (senha.value === confirmarSenha.value) {
+            mensagemSenha.textContent = 'As senhas conferem.';
+            mensagemSenha.className = 'form-text text-success';
+            confirmarSenha.classList.add('is-valid');
+            confirmarSenha.classList.remove('is-invalid');
+        } else {
+            mensagemSenha.textContent = 'As senhas não conferem.';
+            mensagemSenha.className = 'form-text text-danger';
+            confirmarSenha.classList.add('is-invalid');
+            confirmarSenha.classList.remove('is-valid');
+        }
+    }
+
+    senha.addEventListener('input', validarSenhas);
+    confirmarSenha.addEventListener('input', validarSenhas);
+
+    formRedefinir.addEventListener('submit', function (e) {
+        if (senha.value !== confirmarSenha.value) {
+            e.preventDefault();
+            mensagemSenha.textContent = 'As senhas não conferem.';
+            mensagemSenha.className = 'form-text text-danger';
+            confirmarSenha.classList.add('is-invalid');
+            confirmarSenha.classList.remove('is-valid');
+        }
+    });
+</script>
+{% endblock %}
