@@ -277,7 +277,7 @@ def login():
         session.pop('ultimo_envio_confirmacao', None)
 
         session['vicentino_id'] = vicentino.id
-        session['vicentino_nome'] = f'{vicentino.nome} {vicentino.sobrenome}'
+        session['vicentino_nome'] = f'{vicentino.nome}'
         session['vicentino_email'] = vicentino.email
 
         flash('Login realizado com sucesso.', 'success')
@@ -451,21 +451,6 @@ def logout():
     session.clear()
     flash('Você saiu do sistema.', 'info')
     return redirect(url_for('login'))
-
-
-@app.route('/teste_email')
-def teste_email():
-    try:
-        msg = Message(
-            subject='Teste de envio de e-mail',
-            recipients=['SEUEMAIL@gmail.com'],
-            body='Se você recebeu este e-mail, o Flask-Mail está funcionando corretamente.'
-        )
-        mail.send(msg)
-        return 'E-mail enviado com sucesso!'
-    except Exception as e:
-        return f'Erro ao enviar e-mail: {str(e)}'
-
 
 if __name__ == '__main__':
     with app.app_context():
