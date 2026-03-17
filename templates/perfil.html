@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+
+<div class="container d-flex justify-content-center mt-5">
+    <div class="card shadow-lg p-4 text-center" style="max-width: 500px; width: 100%; border-radius: 15px;">
+
+        <!-- FOTO -->
+        {% if usuario.foto %}
+            <img src="{{ url_for('static', filename='fotos_perfil/' ~ usuario.foto) }}"
+                 class="rounded-circle border border-3 border-primary mb-3 mx-auto"
+                 style="width: 150px; height: 150px; object-fit: cover;"
+                 alt="Foto de Perfil">
+        {% else %}
+            <div class="d-flex justify-content-center align-items-center bg-light text-secondary rounded-circle mb-3 mx-auto"
+                 style="width: 150px; height: 150px;">
+                <i class="fa-solid fa-user fa-4x"></i>
+            </div>
+        {% endif %}
+
+        <!-- NOME -->
+        <h3 class="mb-1">{{ usuario.nome }} {{ usuario.sobrenome }}</h3>
+
+        <!-- EMAIL -->
+        <p class="text-muted mb-3">{{ usuario.email }}</p>
+
+        <!-- INFORMAÇÕES EXTRAS (se quiser depois) -->
+        {# Exemplo futuro:
+        <p class="text-muted">{{ usuario.telefone }}</p>
+        #}
+
+        <!-- BOTÕES -->
+        <div class="d-flex justify-content-center gap-2 mt-3">
+
+            <a href="{{ url_for('editar_perfil') }}" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i> Editar Perfil
+            </a>
+
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </a>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

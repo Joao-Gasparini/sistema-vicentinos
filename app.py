@@ -5,6 +5,9 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from datetime import datetime
 import time
 import re
+import os
+from werkzeug.utils import secure_filename
+from PIL import Image, UnidentifiedImageError
 
 from config import Config
 from models import db, Vicentino
@@ -85,6 +88,8 @@ Se você não solicitou essa alteração, ignore este e-mail.
 
     mail.send(msg)
 
+app.config['UPLOAD_FOLDER_USUARIO'] = os.path.join(app.root_path, 'static', 'fotos_perfil')
+os.makedirs(app.config['UPLOAD_FOLDER_USUARIO'], exist_ok=True)
 
 @app.route('/')
 def home():
@@ -102,6 +107,7 @@ def cadastro():
         telefone = request.form.get('telefone', '').strip()
         senha = request.form.get('senha', '')
         confirmar_senha = request.form.get('confirmar_senha', '')
+        foto = request.files.get('foto')
 
         telefone_numeros = re.sub(r'\D', '', telefone)
 
@@ -148,6 +154,38 @@ def cadastro():
             elif len(telefone_numeros) == 10:
                 telefone_formatado = f'({telefone_numeros[:2]}) {telefone_numeros[2:6]}-{telefone_numeros[6:]}'
 
+        # ===== FOTO DE PERFIL =====
+        nome_arquivo_foto = None
+
+        if foto and foto.filename:
+            extensoes_permitidas = {'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'jfif'}
+
+            nome_seguro = secure_filename(foto.filename)
+            extensao = nome_seguro.rsplit('.', 1)[-1].lower() if '.' in nome_seguro else ''
+
+            if extensao not in extensoes_permitidas:
+                flash('Formato de imagem inválido. Envie jpg, jpeg, png, gif, bmp, tiff, webp ou jfif.', 'danger')
+                return redirect(url_for('cadastro'))
+
+            try:
+                imagem = Image.open(foto)
+
+                if imagem.mode in ('RGBA', 'P'):
+                    imagem = imagem.convert('RGB')
+
+                nome_arquivo_foto = f'vicentino_{int(time.time())}.jpg'
+                caminho_foto = os.path.join(app.config['UPLOAD_FOLDER_USUARIO'], nome_arquivo_foto)
+
+                imagem = imagem.resize((400, 400), Image.Resampling.LANCZOS)
+                imagem.save(caminho_foto, quality=90)
+
+            except UnidentifiedImageError:
+                flash('Arquivo de imagem inválido.', 'danger')
+                return redirect(url_for('cadastro'))
+            except Exception:
+                flash('Não foi possível salvar a foto de perfil.', 'danger')
+                return redirect(url_for('cadastro'))
+
         novo_vicentino = Vicentino(
             nome=nome,
             sobrenome=sobrenome,
@@ -156,7 +194,8 @@ def cadastro():
             telefone=telefone_formatado,
             senha_hash=generate_password_hash(senha),
             status='pendente',
-            email_confirmado=False
+            email_confirmado=False,
+            foto=nome_arquivo_foto
         )
 
         db.session.add(novo_vicentino)
@@ -242,6 +281,14 @@ def reenviar_confirmacao():
 
     return redirect(url_for('login'))
 
+@app.route('/perfil')
+def perfil():
+    if 'vicentino_id' not in session:
+        return redirect(url_for('login'))
+
+    usuario = Vicentino.query.get(session['vicentino_id'])
+    return render_template('perfil.html', usuario=usuario)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -276,9 +323,11 @@ def login():
         session.pop('email_pendente_confirmacao', None)
         session.pop('ultimo_envio_confirmacao', None)
 
+        # ===== SESSÃO DO USUÁRIO LOGADO =====
         session['vicentino_id'] = vicentino.id
-        session['vicentino_nome'] = f'{vicentino.nome}'
+        session['vicentino_nome'] = vicentino.nome
         session['vicentino_email'] = vicentino.email
+        session['vicentino_foto'] = vicentino.foto if hasattr(vicentino, 'foto') else None
 
         flash('Login realizado com sucesso.', 'success')
         return redirect(url_for('dashboard'))
@@ -310,6 +359,122 @@ def login():
         email_pendente=email_pendente,
         tempo_restante=tempo_restante
     )
+
+@app.route('/editar_perfil', methods=['GET', 'POST'])
+def editar_perfil():
+    if 'vicentino_id' not in session:
+        flash('Faça login para acessar seu perfil.', 'warning')
+        return redirect(url_for('login'))
+
+    usuario = Vicentino.query.get(session['vicentino_id'])
+
+    if not usuario:
+        session.clear()
+        flash('Usuário não encontrado. Faça login novamente.', 'danger')
+        return redirect(url_for('login'))
+
+    erros = {}
+    extensoes_permitidas = {'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'jfif'}
+
+    if request.method == 'POST':
+        nome = request.form.get('nome', '').strip()
+        email = request.form.get('email', '').strip().lower()
+
+        senha_atual = request.form.get('senha_atual', '').strip()
+        nova_senha = request.form.get('nova_senha', '').strip()
+        confirmar_senha = request.form.get('confirmar_senha', '').strip()
+
+        # ===== VALIDAÇÃO DE NOME E EMAIL =====
+        if not nome:
+            erros['nome'] = 'Informe o nome.'
+
+        if not email:
+            erros['email'] = 'Informe o e-mail.'
+        else:
+            email_existente = Vicentino.query.filter(
+                Vicentino.email == email,
+                Vicentino.id != usuario.id
+            ).first()
+
+            if email_existente:
+                erros['email'] = 'Este e-mail já está em uso por outro usuário.'
+
+        # ===== ATUALIZA DADOS BÁSICOS =====
+        if not erros:
+            usuario.nome = nome
+            usuario.email = email
+
+        # ===== FOTO DE PERFIL =====
+        foto = request.files.get('foto')
+
+        if foto and foto.filename:
+            nome_foto = secure_filename(foto.filename)
+            extensao = nome_foto.rsplit('.', 1)[-1].lower() if '.' in nome_foto else ''
+
+            if extensao not in extensoes_permitidas:
+                erros['foto'] = 'Formato de arquivo não suportado. Envie apenas imagens.'
+            else:
+                try:
+                    imagem = Image.open(foto)
+
+                    if imagem.mode in ('RGBA', 'P'):
+                        imagem = imagem.convert('RGB')
+
+                    imagem = imagem.resize((400, 400), Image.Resampling.LANCZOS)
+
+                    nome_arquivo = f'vicentino_{usuario.id}.jpg'
+                    caminho_foto = os.path.join(app.config['UPLOAD_FOLDER_USUARIO'], nome_arquivo)
+
+                    imagem.save(caminho_foto, quality=90)
+                    usuario.foto = nome_arquivo
+
+                except UnidentifiedImageError:
+                    erros['foto'] = 'Arquivo inválido. Envie apenas imagens.'
+                except Exception:
+                    erros['foto'] = 'Não foi possível salvar a imagem.'
+
+        # ===== ALTERAÇÃO DE SENHA =====
+        if senha_atual or nova_senha or confirmar_senha:
+            if not senha_atual:
+                erros['senha_atual'] = 'Informe a senha atual.'
+
+            if not nova_senha:
+                erros['nova_senha'] = 'Informe a nova senha.'
+
+            if not confirmar_senha:
+                erros['confirmar_senha'] = 'Confirme a nova senha.'
+
+            if senha_atual and not check_password_hash(usuario.senha_hash, senha_atual):
+                erros['senha_atual'] = 'Senha atual incorreta.'
+
+            if nova_senha and confirmar_senha and nova_senha != confirmar_senha:
+                erros['confirmar_senha'] = 'A confirmação da senha não coincide.'
+
+            if nova_senha and len(nova_senha) < 6:
+                erros['nova_senha'] = 'A nova senha deve ter pelo menos 6 caracteres.'
+
+            if 'senha_atual' not in erros and 'nova_senha' not in erros and 'confirmar_senha' not in erros:
+                usuario.senha_hash = generate_password_hash(nova_senha)
+
+        # ===== SE HOUVER ERROS =====
+        if erros:
+            for campo, mensagem in erros.items():
+                flash(mensagem, 'danger')
+
+            return render_template('editar_perfil.html', usuario=usuario, erros=erros)
+
+        # ===== SALVA NO BANCO =====
+        db.session.commit()
+
+        # ===== ATUALIZA A SESSÃO =====
+        session['vicentino_nome'] = usuario.nome
+        session['vicentino_email'] = usuario.email
+        session['vicentino_foto'] = usuario.foto if usuario.foto else None
+
+        flash('Perfil atualizado com sucesso!', 'success')
+        return redirect(url_for('editar_perfil'))
+
+    return render_template('editar_perfil.html', usuario=usuario, erros=erros)
 
 @app.route('/esqueci_senha', methods=['GET', 'POST'])
 def esqueci_senha():

@@ -18,6 +18,7 @@ class Vicentino(db.Model):
     email_confirmado = db.Column(db.Boolean, default=False)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
     data_confirmacao = db.Column(db.DateTime, nullable=True)
+    foto = db.Column(db.String(255), nullable=True)
 
     familias = db.relationship('Familia', backref='vicentino', lazy=True)
     atendimentos = db.relationship('Atendimento', backref='vicentino', lazy=True)

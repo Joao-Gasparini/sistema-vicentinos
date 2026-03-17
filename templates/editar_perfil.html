@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        <h3 class="mb-4 text-center">Editar Perfil</h3>
+
+        <form action="{{ url_for('editar_perfil') }}" method="POST" enctype="multipart/form-data">
+
+            <!-- FOTO -->
+            <div class="text-center mb-4">
+                <div class="position-relative d-inline-block">
+
+                    <img id="preview_foto"
+                         src="{{ url_for('static', filename='fotos_perfil/' ~ (usuario.foto if usuario.foto else '')) if usuario.foto else 'https://via.placeholder.com/150' }}"
+                         class="rounded-circle border"
+                         style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;">
+
+                    <input type="file" name="foto" id="input_foto" accept="image/*" style="display: none;">
+
+                    <div onclick="document.getElementById('input_foto').click()"
+                         class="position-absolute top-50 start-50 translate-middle text-white"
+                         style="cursor: pointer;">
+                        <i class="fas fa-camera fa-2x"></i>
+                    </div>
+                </div>
+                <small class="text-muted d-block mt-2">Clique na imagem para alterar</small>
+            </div>
+
+            <!-- NOME -->
+            <div class="mb-3">
+                <label class="form-label">Nome</label>
+                <input type="text" name="nome" class="form-control" value="{{ usuario.nome }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Sobrenome</label>
+                <input type="text" name="nome" class="form-control" value="{{ usuario.sobrenome }}" required>
+            </div>
+
+            <!-- EMAIL -->
+            <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <input type="email" name="email" class="form-control" value="{{ usuario.email }}" required>
+            </div>
+
+            <!-- BOTÃO ALTERAR SENHA -->
+            <div class="mb-3 text-center">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleSenha()">
+                    Alterar Senha
+                </button>
+            </div>
+
+            <!-- CAMPOS DE SENHA -->
+            <div id="area_senha" style="display: none;">
+
+                <div class="mb-3">
+                    <label class="form-label">Senha Atual</label>
+                    <input type="password" name="senha_atual" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Nova Senha</label>
+                    <input type="password" name="nova_senha" id="nova_senha" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Confirmar Nova Senha</label>
+                    <input type="password" name="confirmar_senha" id="confirmar_senha" class="form-control">
+                    <small id="msg_senha" class="text-danger"></small>
+                </div>
+
+            </div>
+
+            <!-- BOTÕES -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ url_for('perfil') }}" class="btn btn-secondary">
+                    Voltar
+                </a>
+
+                <button type="submit" class="btn btn-primary">
+                    Salvar Alterações
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- SCRIPT PREVIEW FOTO -->
+<script>
+document.getElementById('input_foto').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview_foto').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+
+<!-- SCRIPT MOSTRAR SENHA -->
+<script>
+function toggleSenha() {
+    const area = document.getElementById('area_senha');
+    area.style.display = area.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+
+<!-- SCRIPT VALIDAÇÃO SENHA -->
+<script>
+const novaSenha = document.getElementById("nova_senha");
+const confirmarSenha = document.getElementById("confirmar_senha");
+const msg = document.getElementById("msg_senha");
+
+function validarSenha() {
+    if (confirmarSenha.value && novaSenha.value !== confirmarSenha.value) {
+        msg.textContent = "As senhas não coincidem.";
+        confirmarSenha.classList.add("is-invalid");
+    } else {
+        msg.textContent = "";
+        confirmarSenha.classList.remove("is-invalid");
+    }
+}
+
+novaSenha.addEventListener("input", validarSenha);
+confirmarSenha.addEventListener("input", validarSenha);
+</script>
+
+{% endblock %}

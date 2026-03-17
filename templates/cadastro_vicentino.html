@@ -8,7 +8,28 @@
                 <h4 class="mb-0">Cadastro de Vicentino</h4>
             </div>
             <div class="card-body">
-                <form method="POST" id="form-cadastro">
+                <form method="POST" enctype="multipart/form-data" id="form-cadastro">
+
+                    <!-- FOTO DE PERFIL -->
+                    <div class="text-center mb-4">
+                        <label class="form-label d-block">Foto de Perfil</label>
+
+                        <img id="preview_foto"
+                             src="https://via.placeholder.com/120"
+                             class="rounded-circle mb-2 border"
+                             style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;"
+                             alt="Prévia da foto">
+
+                        <input type="file" name="foto" id="input_foto" accept="image/*" style="display: none;">
+
+                        <br>
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm mt-2"
+                                onclick="document.getElementById('input_foto').click()">
+                            Escolher Foto
+                        </button>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Nome*</label>
@@ -278,6 +299,17 @@
             confirmarSenha.classList.remove('is-valid');
             alert('As senhas não conferem.');
             return;
+        }
+    });
+
+    document.getElementById('input_foto').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview_foto').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
     });
 </script>
