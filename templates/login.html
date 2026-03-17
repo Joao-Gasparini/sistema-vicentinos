@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Login</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">E-mail</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Senha</label>
+                        <input type="password" name="senha" class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('esqueci_senha') }}">Esqueci minha senha</a>
+                </div>
+
+                {% if email_pendente %}
+                    <div class="alert alert-warning mt-3">
+                        <strong>Conta pendente de confirmação.</strong><br>
+                        Foi enviado um e-mail para: <strong>{{ email_pendente }}</strong>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('reenviar_confirmacao') }}" class="mt-2">
+                        <input type="hidden" name="email" value="{{ email_pendente }}">
+
+                        <button type="submit" id="btnReenviar" class="btn btn-outline-primary w-100" {% if tempo_restante > 0 %}disabled{% endif %}>
+                            {% if tempo_restante > 0 %}
+                                Reenviar em <span id="contador">{{ tempo_restante }}</span>s
+                            {% else %}
+                                Reenviar e-mail de confirmação
+                            {% endif %}
+                        </button>
+                    </form>
+
+                    <script>
+                        let tempoRestante = {{ tempo_restante|default(0) }};
+                        const botao = document.getElementById('btnReenviar');
+                        const contador = document.getElementById('contador');
+
+                        if (tempoRestante > 0) {
+                            const intervalo = setInterval(() => {
+                                tempoRestante--;
+
+                                if (contador) {
+                                    contador.textContent = tempoRestante;
+                                }
+
+                                if (tempoRestante <= 0) {
+                                    clearInterval(intervalo);
+                                    botao.disabled = false;
+                                    botao.innerHTML = 'Reenviar e-mail de confirmação';
+                                }
+                            }, 1000);
+                        }
+                    </script>
+                {% endif %}
+
+                <hr>
+                <p class="text-center mb-0">
+                    Não tem conta?
+                    <a href="{{ url_for('cadastro') }}">Cadastre-se</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

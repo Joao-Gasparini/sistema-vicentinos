@@ -20,6 +20,12 @@ serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 def apenas_letras(texto):
     return re.fullmatch(r"[A-Za-zÀ-ÿ\s]+", texto) is not None
 
+def email_valido(email):
+    return re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email) is not None
+
+def senha_forte(senha):
+    return re.fullmatch(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$', senha) is not None
+
 def gerar_token(email, salt):
     return serializer.dumps(email, salt=salt)
 
@@ -99,16 +105,24 @@ def cadastro():
 
         telefone_numeros = re.sub(r'\D', '', telefone)
 
+        if not nome or not sobrenome or not email or not senha or not confirmar_senha:
+            flash('Preencha todos os campos obrigatórios.', 'danger')
+            return redirect(url_for('cadastro'))
+
         if not apenas_letras(nome) or not apenas_letras(sobrenome):
             flash('Nome e sobrenome devem conter apenas letras.', 'danger')
-            return redirect(url_for('cadastro_vicentino'))  # ajuste o nome da rota se necessário
+            return redirect(url_for('cadastro'))
+
+        if not email_valido(email):
+            flash('E-mail inválido.', 'danger')
+            return redirect(url_for('cadastro'))
 
         if telefone and len(telefone_numeros) not in [10, 11]:
             flash('Informe um telefone válido com DDD.', 'danger')
             return redirect(url_for('cadastro'))
 
-        if not nome or not sobrenome or not email or not senha or not confirmar_senha:
-            flash('Preencha todos os campos obrigatórios.', 'danger')
+        if not senha_forte(senha):
+            flash('A senha deve conter maiúscula, minúscula, número, símbolo e no mínimo 8 caracteres.', 'danger')
             return redirect(url_for('cadastro'))
 
         if senha != confirmar_senha:
