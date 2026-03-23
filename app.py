@@ -571,14 +571,12 @@ def editar_perfil():
 
         if not nome:
             erros['nome'] = 'Informe o nome.'
+        elif not apenas_letras(nome):
+            erros['nome'] = 'O nome deve conter apenas letras.'
 
         if not sobrenome:
             erros['sobrenome'] = 'Informe o sobrenome.'
-
-        if nome and not apenas_letras(nome):
-            erros['nome'] = 'O nome deve conter apenas letras.'
-
-        if sobrenome and not apenas_letras(sobrenome):
+        elif not apenas_letras(sobrenome):
             erros['sobrenome'] = 'O sobrenome deve conter apenas letras.'
 
         telefone_formatado = None

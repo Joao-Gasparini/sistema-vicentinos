@@ -148,6 +148,18 @@ function validarSenha() {
 
 novaSenha.addEventListener("input", validarSenha);
 confirmarSenha.addEventListener("input", validarSenha);
+
+function permitirApenasLetras(event) {
+    const char = String.fromCharCode(event.which);
+
+    if (!/[A-Za-zÀ-ÿ\s\-]/.test(char)) {
+        event.preventDefault();
+    }
+}
+
+document.querySelector('input[name="nome"]').addEventListener('keypress', permitirApenasLetras);
+document.querySelector('input[name="sobrenome"]').addEventListener('keypress', permitirApenasLetras);
+
 </script>
 
 {% endblock %}

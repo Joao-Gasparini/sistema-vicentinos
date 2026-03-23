@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="com.obiscr.chatgpt.settings.EasyCodeState">
+    <option name="projectFiles" value="$PROJECT_DIR$/templates/base.html;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/templates/cadastro_vicentino.html;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/templates/dashboard.html;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/templates/editar_perfil.html;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/templates/esqueci_senha.html;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/templates/login.html;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/templates/perfil.html;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/templates/redefinir_senha.html;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/templates/reenviar_confirmacao.html;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/app.py;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/config.py;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos/models.py" />
+  </component>
+</project>
