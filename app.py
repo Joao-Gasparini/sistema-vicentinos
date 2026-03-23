@@ -36,6 +36,12 @@ serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 app.config['UPLOAD_FOLDER_USUARIO'] = os.path.join(app.root_path, 'static', 'fotos_perfil')
 os.makedirs(app.config['UPLOAD_FOLDER_USUARIO'], exist_ok=True)
 
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+
+@app.errorhandler(413)
+def arquivo_muito_grande(e):
+    flash('Arquivo muito grande! Máximo permitido: 5MB.', 'danger')
+    return redirect(request.referrer or url_for('home'))
 
 # =========================================================
 # FUNÇÕES AUXILIARES
@@ -260,6 +266,7 @@ def cadastro():
                 return redirect(url_for('cadastro'))
 
         nome_arquivo_foto = None
+        imagem = None  # <-- guarda a imagem validada
 
         if foto and foto.filename:
             extensoes_permitidas = {'jpg', 'jpeg', 'png', 'webp'}
@@ -278,17 +285,12 @@ def cadastro():
                 if imagem.mode in ('RGBA', 'P'):
                     imagem = imagem.convert('RGB')
 
-                nome_arquivo_foto = f'vicentino_{int(time.time())}.jpg'
-                caminho_foto = os.path.join(app.config['UPLOAD_FOLDER_USUARIO'], nome_arquivo_foto)
-
-                imagem = imagem.resize((400, 400), Image.Resampling.LANCZOS)
-                imagem.save(caminho_foto, quality=90)
 
             except UnidentifiedImageError:
                 flash('Arquivo de imagem inválido.', 'danger')
                 return redirect(url_for('cadastro'))
             except Exception:
-                flash('Não foi possível salvar a foto de perfil.', 'danger')
+                flash('Não foi possível processar a foto de perfil.', 'danger')
                 return redirect(url_for('cadastro'))
 
         novo_vicentino = Vicentino(
@@ -300,13 +302,28 @@ def cadastro():
             senha_hash=generate_password_hash(senha),
             status='pendente',
             email_confirmado=False,
-            foto=nome_arquivo_foto,
+            foto=None,
             conselho=conselho if conselho else None,
             conferencia=conferencia if conferencia else None
         )
 
         db.session.add(novo_vicentino)
         db.session.commit()
+
+        # 🔥 AGORA salva a imagem (depois do commit)
+        if imagem:
+            try:
+                nome_arquivo_foto = f'vicentino_{novo_vicentino.id}.jpg'
+                caminho_foto = os.path.join(app.config['UPLOAD_FOLDER_USUARIO'], nome_arquivo_foto)
+
+                imagem = imagem.resize((400, 400), Image.Resampling.LANCZOS)
+                imagem.save(caminho_foto, quality=90)
+
+                novo_vicentino.foto = nome_arquivo_foto
+                db.session.commit()
+
+            except Exception:
+                flash('Usuário criado, mas houve erro ao salvar a foto.', 'warning')
 
         try:
             enviar_email_confirmacao(novo_vicentino)
@@ -591,11 +608,20 @@ def editar_perfil():
 
         telefone_formatado = None
         if telefone:
-            telefone_formatado = telefone_valido_br(telefone)
+            # 🔹 Normaliza o telefone removendo tudo que não for número
+            import re
+            telefone_numeros = re.sub(r'\D', '', telefone)
+
+            # 🔹 Remove DDI 55 se estiver presente
+            if telefone_numeros.startswith('55') and len(telefone_numeros) > 10:
+                telefone_numeros = telefone_numeros[2:]
+
+            telefone_formatado = telefone_valido_br(telefone_numeros)
             if not telefone_formatado:
                 erros['telefone'] = 'Telefone inválido.'
 
         foto = request.files.get('foto')
+        imagem = None  # <-- guarda a imagem validada
 
         if foto and foto.filename:
             nome_foto = secure_filename(foto.filename)
@@ -613,16 +639,10 @@ def editar_perfil():
 
                     imagem = imagem.resize((400, 400), Image.Resampling.LANCZOS)
 
-                    nome_arquivo = f'vicentino_{usuario.id}.jpg'
-                    caminho_foto = os.path.join(app.config['UPLOAD_FOLDER_USUARIO'], nome_arquivo)
-
-                    imagem.save(caminho_foto, quality=90)
-                    usuario.foto = nome_arquivo
-
                 except UnidentifiedImageError:
                     erros['foto'] = 'Arquivo inválido. Envie apenas imagens.'
                 except Exception:
-                    erros['foto'] = 'Não foi possível salvar a imagem.'
+                    erros['foto'] = 'Não foi possível processar a imagem.'
 
         if senha_atual or nova_senha or confirmar_senha:
             if not senha_atual:
@@ -652,6 +672,7 @@ def editar_perfil():
 
             return render_template('editar_perfil.html', usuario=usuario, erros=erros)
 
+        # Atualiza dados do usuário
         usuario.nome = nome
         usuario.sobrenome = sobrenome
         usuario.telefone = telefone_formatado
@@ -660,6 +681,26 @@ def editar_perfil():
 
         db.session.commit()
 
+        # 🔥 Salva a imagem e remove a anterior se houver
+        if imagem:
+            try:
+                nome_arquivo = f'vicentino_{usuario.id}.jpg'
+                caminho_foto = os.path.join(app.config['UPLOAD_FOLDER_USUARIO'], nome_arquivo)
+
+                # Remove foto anterior
+                if usuario.foto:
+                    caminho_antigo = os.path.join(app.config['UPLOAD_FOLDER_USUARIO'], usuario.foto)
+                    if os.path.exists(caminho_antigo):
+                        os.remove(caminho_antigo)
+
+                imagem.save(caminho_foto, quality=90)
+                usuario.foto = nome_arquivo
+                db.session.commit()
+
+            except Exception:
+                flash('Perfil atualizado, mas houve erro ao salvar a imagem.', 'warning')
+
+        # Atualiza sessão
         session['vicentino_nome'] = usuario.nome
         session['vicentino_email'] = usuario.email
         session['vicentino_foto'] = usuario.foto if usuario.foto else None

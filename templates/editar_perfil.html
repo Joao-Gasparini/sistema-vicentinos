@@ -51,8 +51,8 @@
 
             <div class="mb-3">
                 <label class="form-label">Telefone</label>
-                <input type="text" name="telefone" class="form-control"
-                       value="{{ usuario.telefone or '' }}">
+                <input type="text" name="telefone" id="telefone" class="form-control"
+                        value="{{ usuario.telefone or '' }}">
             </div>
 
             <div class="mb-3">
@@ -112,55 +112,176 @@
 
 <!-- SCRIPT PREVIEW FOTO -->
 <script>
-document.getElementById('input_foto').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('preview_foto').src = e.target.result;
+    // =========================
+    // FOTO PREVIEW + VALIDAÇÃO
+    // =========================
+    const inputFoto = document.getElementById('input_foto');
+
+    if (inputFoto) {
+        inputFoto.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                const tamanhoMaximo = 5 * 1024 * 1024; // 5MB
+
+                // 🚨 valida tamanho antes de tudo
+                if (file.size > tamanhoMaximo) {
+                    alert('A imagem é muito grande! Máximo permitido: 5MB.');
+
+                    inputFoto.value = ''; // limpa o input
+                    return;
+                }
+
+                // ✅ preview normal
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview_foto').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // =========================
+    // MOSTRAR/OCULTAR SENHA
+    // =========================
+    function toggleSenha() {
+        const area = document.getElementById('area_senha');
+        area.style.display = area.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // =========================
+    // SENHA
+    // =========================
+    const novaSenha = document.getElementById('nova_senha');
+    const confirmarSenha = document.getElementById('confirmar_senha');
+    const msg = document.getElementById('msg_senha');
+
+    function validarSenha() {
+        if (!confirmarSenha.value) {
+            msg.textContent = '';
+            confirmarSenha.classList.remove('is-valid', 'is-invalid');
+            return;
         }
-        reader.readAsDataURL(file);
+
+        if (novaSenha.value === confirmarSenha.value) {
+            msg.textContent = 'As senhas conferem.';
+            msg.className = 'text-success';
+            confirmarSenha.classList.add('is-valid');
+            confirmarSenha.classList.remove('is-invalid');
+        } else {
+            msg.textContent = 'As senhas não coincidem.';
+            msg.className = 'text-danger';
+            confirmarSenha.classList.add('is-invalid');
+            confirmarSenha.classList.remove('is-valid');
+        }
     }
-});
-</script>
 
-<!-- SCRIPT MOSTRAR SENHA -->
-<script>
-function toggleSenha() {
-    const area = document.getElementById('area_senha');
-    area.style.display = area.style.display === 'none' ? 'block' : 'none';
-}
-</script>
-
-<!-- SCRIPT VALIDAÇÃO SENHA -->
-<script>
-const novaSenha = document.getElementById("nova_senha");
-const confirmarSenha = document.getElementById("confirmar_senha");
-const msg = document.getElementById("msg_senha");
-
-function validarSenha() {
-    if (confirmarSenha.value && novaSenha.value !== confirmarSenha.value) {
-        msg.textContent = "As senhas não coincidem.";
-        confirmarSenha.classList.add("is-invalid");
-    } else {
-        msg.textContent = "";
-        confirmarSenha.classList.remove("is-invalid");
+    if (novaSenha && confirmarSenha) {
+        novaSenha.addEventListener("input", validarSenha);
+        confirmarSenha.addEventListener("input", validarSenha);
     }
-}
 
-novaSenha.addEventListener("input", validarSenha);
-confirmarSenha.addEventListener("input", validarSenha);
+    // =========================
+    // TELEFONE
+    // =========================
+    const telefone = document.getElementById('telefone');
 
-function permitirApenasLetras(event) {
-    const char = String.fromCharCode(event.which);
+    function aplicarMascaraTelefone(valor) {
+        valor = valor.replace(/\D/g, '');
 
-    if (!/[A-Za-zÀ-ÿ\s\-]/.test(char)) {
-        event.preventDefault();
+        if (valor.length > 11) {
+            valor = valor.slice(0, 11);
+        }
+
+        if (valor.length <= 10) {
+            valor = valor.replace(/^(\d{2})(\d)/, '($1) $2');
+            valor = valor.replace(/(\d{4})(\d)/, '$1-$2');
+        } else {
+            valor = valor.replace(/^(\d{2})(\d)/, '($1) $2');
+            valor = valor.replace(/(\d{5})(\d)/, '$1-$2');
+        }
+
+        return valor;
     }
-}
 
-document.querySelector('input[name="nome"]').addEventListener('keypress', permitirApenasLetras);
-document.querySelector('input[name="sobrenome"]').addEventListener('keypress', permitirApenasLetras);
+    if (telefone) {
+        telefone.addEventListener('input', function () {
+            this.value = aplicarMascaraTelefone(this.value);
+
+            const telefoneLimpo = this.value.replace(/\D/g, '');
+
+            if (this.value === '') {
+                this.classList.remove('is-valid', 'is-invalid');
+            } else if (telefoneLimpo.length === 10 || telefoneLimpo.length === 11) {
+                this.classList.add('is-valid');
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+            }
+        });
+
+        telefone.addEventListener('keypress', function (e) {
+            const char = String.fromCharCode(e.which);
+            if (!/[0-9]/.test(char)) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // =========================
+    // BLOQUEAR NÚMEROS NO NOME
+    // =========================
+    function permitirApenasLetras(event) {
+        const char = String.fromCharCode(event.which);
+        if (!/[A-Za-zÀ-ÿ\s\-]/.test(char)) {
+            event.preventDefault();
+        }
+    }
+
+    const inputNome = document.querySelector('input[name="nome"]');
+    const inputSobrenome = document.querySelector('input[name="sobrenome"]');
+
+    if (inputNome) inputNome.addEventListener('keypress', permitirApenasLetras);
+    if (inputSobrenome) inputSobrenome.addEventListener('keypress', permitirApenasLetras);
+
+    // =========================
+    // SUBMIT (VALIDAÇÃO FINAL)
+    // =========================
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', function (e) {
+        const telefoneLimpo = telefone ? telefone.value.replace(/\D/g, '') : '';
+
+        // telefone
+        if (telefone && telefone.value && telefoneLimpo.length !== 10 && telefoneLimpo.length !== 11) {
+            e.preventDefault();
+            telefone.classList.add('is-invalid');
+            alert('Informe um telefone válido com DDD.');
+            return;
+        }
+
+        // senha opcional
+        if (novaSenha.value || confirmarSenha.value) {
+
+            if (novaSenha.value.length < 6) {
+                e.preventDefault();
+                novaSenha.classList.add('is-invalid');
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return;
+            }
+
+            if (novaSenha.value !== confirmarSenha.value) {
+                e.preventDefault();
+                msg.textContent = 'As senhas não coincidem.';
+                msg.className = 'text-danger';
+                confirmarSenha.classList.add('is-invalid');
+                alert('As senhas não conferem.');
+                return;
+            }
+        }
+    });
 </script>
 
 {% endblock %}

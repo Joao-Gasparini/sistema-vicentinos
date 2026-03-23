@@ -171,7 +171,6 @@
 </div>
 
 <script>
-    // (SEU JS ORIGINAL — NÃO ALTEREI NADA)
     const senha = document.getElementById('senha');
     const confirmarSenha = document.getElementById('confirmar_senha');
     const mensagemSenha = document.getElementById('mensagem-senha');
@@ -330,6 +329,32 @@
     document.getElementById('input_foto').addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview_foto').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+
+    // =========================
+    // FOTO PREVIEW + VALIDAÇÃO
+    // =========================
+    document.getElementById('input_foto').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            const tamanhoMaximo = 5 * 1024 * 1024; // 5MB
+
+            // 🚨 valida tamanho
+            if (file.size > tamanhoMaximo) {
+                alert('A imagem é muito grande! Máximo permitido: 5MB.');
+                this.value = ''; // limpa input
+                return;
+            }
+
+            // ✅ preview
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById('preview_foto').src = e.target.result;
