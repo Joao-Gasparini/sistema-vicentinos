@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -8,6 +12,7 @@ from PIL import Image, UnidentifiedImageError
 from email_validator import validate_email, EmailNotValidError
 from phonenumbers import NumberParseException
 
+
 import phonenumbers
 import time
 import re
@@ -15,6 +20,8 @@ import os
 
 from config import Config
 from models import db, Vicentino
+
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
