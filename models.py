@@ -12,17 +12,18 @@ class Vicentino(db.Model):
     sobrenome = db.Column(db.String(120), nullable=False)
     cpf = db.Column(db.String(14), unique=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
-    telefone = db.Column(db.String(20))
+    telefone = db.Column(db.String(25))
     senha_hash = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(10), default='pendente')
     email_confirmado = db.Column(db.Boolean, default=False)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
     data_confirmacao = db.Column(db.DateTime, nullable=True)
     foto = db.Column(db.String(255), nullable=True)
+    conselho = db.Column(db.String(150), nullable=True)
+    conferencia = db.Column(db.String(150), nullable=True)
 
     familias = db.relationship('Familia', backref='vicentino', lazy=True)
     atendimentos = db.relationship('Atendimento', backref='vicentino', lazy=True)
-
 
 class Familia(db.Model):
     __tablename__ = 'familias'
@@ -30,8 +31,8 @@ class Familia(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome_responsavel = db.Column(db.String(150), nullable=False)
     cpf_responsavel = db.Column(db.String(14), unique=True)
-    telefone_principal = db.Column(db.String(20))
-    telefone_secundario = db.Column(db.String(20))
+    telefone_principal = db.Column(db.String(25))
+    telefone_secundario = db.Column(db.String(25))
     endereco = db.Column(db.String(150), nullable=False)
     numero = db.Column(db.String(20), nullable=False)
     complemento = db.Column(db.String(100))

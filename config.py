@@ -10,3 +10,8 @@ class Config:
     MAIL_USERNAME = 'sistemavicentinosrolanida@gmail.com'
     MAIL_PASSWORD = 'cfkizlyuibqxritu'
     MAIL_DEFAULT_SENDER = 'sistemavicentinosrolanida@gmail.com'
+
+    # 🔒 SEGURANÇA DE SESSÃO
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SECURE = False  # ⚠️ True só quando tiver HTTPS (produção)
+    SESSION_COOKIE_SAMESITE = 'Lax'

@@ -36,13 +36,33 @@
 
             <div class="mb-3">
                 <label class="form-label">Sobrenome</label>
-                <input type="text" name="nome" class="form-control" value="{{ usuario.sobrenome }}" required>
+                <input type="text" name="sobrenome" class="form-control" value="{{ usuario.sobrenome }}" required>
             </div>
 
-            <!-- EMAIL -->
             <div class="mb-3">
-                <label class="form-label">E-mail</label>
-                <input type="email" name="email" class="form-control" value="{{ usuario.email }}" required>
+                <label class="form-label">CPF</label>
+                <input type="text" class="form-control" value="{{ usuario.cpf }}" readonly>
+                <small class="text-muted">
+                    Se o CPF estiver incorreto, solicite a correção ao responsável pelo sistema.
+                </small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Telefone</label>
+                <input type="text" name="telefone" class="form-control"
+                       value="{{ usuario.telefone or '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Conselho</label>
+                <input type="text" name="conselho" class="form-control"
+                       value="{{ usuario.conselho or '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Conferência</label>
+                <input type="text" name="conferencia" class="form-control"
+                       value="{{ usuario.conferencia or '' }}">
             </div>
 
             <!-- BOTÃO ALTERAR SENHA -->

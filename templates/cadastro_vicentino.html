@@ -67,7 +67,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">CPF</label>
-                            <input type="text" name="cpf" class="form-control">
+                            <input type="text" name="cpf" class="form-control" maxlength="14">
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -87,6 +87,28 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Conselho</label>
+                        <input
+                            type="text"
+                            name="conselho"
+                            class="form-control"
+                            maxlength="150"
+                        >
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Conferência</label>
+                        <input
+                            type="text"
+                            name="conferencia"
+                            class="form-control"
+                            maxlength="150"
+                        >
+                    </div>
+                </div>
 
                     <div class="mb-3">
                         <label class="form-label">E-mail*</label>
@@ -112,9 +134,10 @@
                                 id="senha"
                                 class="form-control"
                                 required
+                                minlength="6"
                             >
                             <div id="requisitos-senha" class="form-text">
-                                A senha deve conter pelo menos 8 caracteres, 1 letra maiúscula, 1 minúscula, 1 número e 1 símbolo.
+                                A senha deve conter pelo menos 6 caracteres.
                             </div>
                         </div>
 
@@ -126,6 +149,7 @@
                                 id="confirmar_senha"
                                 class="form-control"
                                 required
+                                minlength="6"
                             >
                             <div id="mensagem-senha" class="form-text"></div>
                         </div>
@@ -155,25 +179,24 @@
 
     function validarForcaSenha() {
         const valor = senha.value;
-        const regexSenha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
         if (valor === '') {
             senha.classList.remove('is-valid', 'is-invalid');
             requisitosSenha.className = 'form-text';
-            requisitosSenha.textContent = 'A senha deve conter pelo menos 8 caracteres, 1 letra maiúscula, 1 minúscula, 1 número e 1 símbolo.';
+            requisitosSenha.textContent = 'A senha deve conter pelo menos 6 caracteres.';
             return;
         }
 
-        if (regexSenha.test(valor)) {
+        if (valor.length >= 6) {
             senha.classList.add('is-valid');
             senha.classList.remove('is-invalid');
             requisitosSenha.className = 'form-text text-success';
-            requisitosSenha.textContent = 'Senha forte ✔';
+            requisitosSenha.textContent = 'Senha válida ✔';
         } else {
             senha.classList.add('is-invalid');
             senha.classList.remove('is-valid');
             requisitosSenha.className = 'form-text text-danger';
-            requisitosSenha.textContent = 'A senha precisa ter maiúscula, minúscula, número, símbolo e no mínimo 8 caracteres.';
+            requisitosSenha.textContent = 'A senha deve conter pelo menos 6 caracteres.';
         }
     }
 
@@ -262,7 +285,6 @@
 
     formCadastro.addEventListener('submit', function (e) {
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const regexSenha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
         const emailValor = emailInput.value.trim();
         const telefoneLimpo = telefone.value.replace(/\D/g, '');
@@ -283,11 +305,11 @@
             return;
         }
 
-        if (!regexSenha.test(senha.value)) {
+        if (senha.value.length < 6) {
             e.preventDefault();
             senha.classList.add('is-invalid');
             senha.classList.remove('is-valid');
-            alert('A senha deve conter pelo menos 8 caracteres, 1 letra maiúscula, 1 minúscula, 1 número e 1 símbolo.');
+            alert('A senha deve ter pelo menos 6 caracteres.');
             return;
         }
 
