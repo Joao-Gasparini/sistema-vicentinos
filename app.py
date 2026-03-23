@@ -11,7 +11,7 @@ from datetime import datetime
 from PIL import Image, UnidentifiedImageError
 from email_validator import validate_email, EmailNotValidError
 from phonenumbers import NumberParseException
-
+from flask_wtf.csrf import CSRFProtect
 
 import phonenumbers
 import time
@@ -25,6 +25,9 @@ from models import db, Vicentino
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Inicialize a proteção CSRF
+csrf = CSRFProtect(app)
 
 db.init_app(app)
 mail = Mail(app)

@@ -8,6 +8,8 @@
 
         <form action="{{ url_for('editar_perfil') }}" method="POST" enctype="multipart/form-data">
 
+             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <!-- FOTO -->
             <div class="text-center mb-4">
                 <div class="position-relative d-inline-block">

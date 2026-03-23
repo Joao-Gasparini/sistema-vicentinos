@@ -9,6 +9,7 @@
             </div>
             <div class="card-body">
                 <form method="POST" id="form-redefinir">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
                         <label class="form-label">Nova senha</label>
                         <input type="password" name="senha" id="senha" class="form-control" required>

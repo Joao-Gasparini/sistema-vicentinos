@@ -10,6 +10,8 @@
             <div class="card-body">
                 <form method="POST" enctype="multipart/form-data" id="form-cadastro">
 
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
                     <!-- FOTO DE PERFIL -->
                     <div class="text-center mb-4">
                         <label class="form-label d-block">Foto de Perfil</label>
@@ -169,6 +171,7 @@
 </div>
 
 <script>
+    // (SEU JS ORIGINAL — NÃO ALTEREI NADA)
     const senha = document.getElementById('senha');
     const confirmarSenha = document.getElementById('confirmar_senha');
     const mensagemSenha = document.getElementById('mensagem-senha');
