@@ -73,6 +73,42 @@ def telefone_valido_br(telefone):
     except NumberParseException:
         return None
 
+def telefone_para_input(telefone_e164):
+    if not telefone_e164:
+        return ''
+
+    # remove +55
+    telefone = telefone_e164.replace('+55', '')
+
+    return telefone  # retorna só números (ex: 11999998888)
+
+def cpf_valido(cpf):
+    cpf = re.sub(r'\D', '', cpf)  # remove tudo que não for número
+
+    if len(cpf) != 11:
+        return False
+
+    # elimina CPFs inválidos tipo 11111111111
+    if cpf == cpf[0] * 11:
+        return False
+
+    # valida 1º dígito
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
+    resto = (soma * 10) % 11
+    if resto == 10:
+        resto = 0
+    if resto != int(cpf[9]):
+        return False
+
+    # valida 2º dígito
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
+    resto = (soma * 10) % 11
+    if resto == 10:
+        resto = 0
+    if resto != int(cpf[10]):
+        return False
+
+    return True
 
 def gerar_token(email, salt):
     return serializer.dumps(email, salt=salt)
@@ -252,7 +288,11 @@ def cadastro():
             return redirect(url_for('cadastro'))
 
         if cpf:
-            usuario_cpf = Vicentino.query.filter_by(cpf=cpf).first()
+            if not cpf_valido(cpf):
+                flash('CPF inválido.', 'danger')
+                return redirect(url_for('cadastro'))
+
+            usuario_cpf = Vicentino.query.filter_by(cpf=re.sub(r'\D', '', cpf)).first()
             if usuario_cpf:
                 flash('Já existe um vicentino cadastrado com este CPF.', 'danger')
                 return redirect(url_for('cadastro'))
@@ -670,8 +710,6 @@ def editar_perfil():
             for campo, mensagem in erros.items():
                 flash(mensagem, 'danger')
 
-            return render_template('editar_perfil.html', usuario=usuario, erros=erros)
-
         # Atualiza dados do usuário
         usuario.nome = nome
         usuario.sobrenome = sobrenome
@@ -708,7 +746,14 @@ def editar_perfil():
         flash('Perfil atualizado com sucesso!', 'success')
         return redirect(url_for('editar_perfil'))
 
-    return render_template('editar_perfil.html', usuario=usuario, erros=erros)
+    telefone_input = telefone_para_input(usuario.telefone)
+
+    return render_template(
+                'editar_perfil.html',
+                usuario=usuario,
+                erros=erros,
+                telefone_input=telefone_input
+            )
 
 if __name__ == '__main__':
     with app.app_context():
