@@ -32,6 +32,14 @@
             <div class="collapse navbar-collapse" id="menuNavbar">
                 <ul class="navbar-nav ms-auto">
 
+                    {% if session.get('tipo') == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('cadastrar_vicentino') }}">
+                                Cadastrar Vicentino
+                            </a>
+                        </li>
+                        {% endif %}
+
                     {% if session.get('vicentino_id') %}
 
                         <!-- DASHBOARD -->
@@ -82,22 +90,16 @@
                             </ul>
                         </li>
 
-                    {% else %}
+               {% else %}
 
-                        <!-- NÃO LOGADO -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">
-                                Login
-                            </a>
-                        </li>
+                    <!-- NÃO LOGADO -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            Login
+                        </a>
+                    </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('cadastro') }}">
-                                Cadastro
-                            </a>
-                        </li>
-
-                    {% endif %}
+                {% endif %}
 
                 </ul>
             </div>

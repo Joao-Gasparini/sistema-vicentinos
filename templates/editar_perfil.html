@@ -7,20 +7,16 @@
         <h3 class="mb-4 text-center">Editar Perfil</h3>
 
         <form action="{{ url_for('editar_perfil') }}" method="POST" enctype="multipart/form-data">
-
-             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <!-- FOTO -->
             <div class="text-center mb-4">
                 <div class="position-relative d-inline-block">
-
                     <img id="preview_foto"
                          src="{{ url_for('static', filename='fotos_perfil/' ~ (usuario.foto if usuario.foto else '')) if usuario.foto else 'https://via.placeholder.com/150' }}"
                          class="rounded-circle border"
                          style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;">
-
                     <input type="file" name="foto" id="input_foto" accept="image/*" style="display: none;">
-
                     <div onclick="document.getElementById('input_foto').click()"
                          class="position-absolute top-50 start-50 translate-middle text-white"
                          style="cursor: pointer;">
@@ -51,33 +47,45 @@
 
             <div class="mb-3">
                 <label class="form-label">Telefone</label>
-               <input type="text" id="telefone" name="telefone"
+                <input type="text" id="telefone" name="telefone"
                        class="form-control"
                        value="{{ telefone_input }}">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Conselho</label>
-                <input type="text" name="conselho" class="form-control"
-                       value="{{ usuario.conselho or '' }}">
+                <input type="text" name="conselho" class="form-control
+                       {% if usuario.tipo != 'admin' %}bg-light{% endif %}"
+                       value="{{ usuario.conselho or '' }}"
+                       {% if usuario.tipo != 'admin' %}readonly{% endif %}>
+                <small class="text-muted">
+                    Se o Conselho estiver incorreto, solicite a correção ao responsável pelo sistema.
+                </small>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Conferência</label>
-                <input type="text" name="conferencia" class="form-control"
-                       value="{{ usuario.conferencia or '' }}">
+                <input type="text" name="conferencia" class="form-control
+                       {% if usuario.tipo != 'admin' %}bg-light{% endif %}"
+                       value="{{ usuario.conferencia or '' }}"
+                       {% if usuario.tipo != 'admin' %}readonly{% endif %}>
+                <small class="text-muted">
+                    Se a Conferência estiver incorreta, solicite a correção ao responsável pelo sistema.
+                </small>
             </div>
 
             <!-- BOTÃO ALTERAR SENHA -->
+            {% if 'vicentino_id' in session %}
             <div class="mb-3 text-center">
                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleSenha()">
                     Alterar Senha
                 </button>
             </div>
+            {% endif %}
 
             <!-- CAMPOS DE SENHA -->
+            {% if 'vicentino_id' in session %}
             <div id="area_senha" style="display: none;">
-
                 <div class="mb-3">
                     <label class="form-label">Senha Atual</label>
                     <input type="password" name="senha_atual" class="form-control">
@@ -93,47 +101,73 @@
                     <input type="password" name="confirmar_senha" id="confirmar_senha" class="form-control">
                     <small id="msg_senha" class="text-danger"></small>
                 </div>
-
             </div>
+            {% endif %}
 
             <!-- BOTÕES -->
             <div class="d-flex justify-content-between mt-4">
-                <a href="{{ url_for('perfil') }}" class="btn btn-secondary">
-                    Voltar
-                </a>
-
-                <button type="submit" class="btn btn-primary">
-                    Salvar Alterações
-                </button>
+                <a href="{{ url_for('perfil') }}" class="btn btn-secondary">Voltar</a>
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
             </div>
-
         </form>
     </div>
 </div>
 
-<!-- SCRIPT PREVIEW FOTO -->
-<script>
-    // =========================
-    // FOTO PREVIEW + VALIDAÇÃO
-    // =========================
-    const inputFoto = document.getElementById('input_foto');
+{% if not usuario.email_confirmado %}
+<div class="alert alert-warning mt-3">
+    <strong>Conta pendente de confirmação.</strong><br>
+    Foi enviado um e-mail para: <strong>{{ usuario.email }}</strong>
+</div>
 
+<form method="POST" action="{{ url_for('reenviar_confirmacao') }}" class="mt-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="email" value="{{ usuario.email }}">
+
+    <button type="submit" id="btnReenviar" class="btn btn-outline-primary" {% if tempo_restante > 0 %}disabled{% endif %}>
+        {% if tempo_restante > 0 %}
+            Reenviar em <span id="contador">{{ tempo_restante }}</span>s
+        {% else %}
+            Reenviar e-mail de confirmação
+        {% endif %}
+    </button>
+</form>
+
+<script>
+    let tempoRestante = {{ tempo_restante|default(0) }};
+    const botao = document.getElementById('btnReenviar');
+    const contador = document.getElementById('contador');
+
+    if (tempoRestante > 0) {
+        const intervalo = setInterval(() => {
+            tempoRestante--;
+
+            if (contador) {
+                contador.textContent = tempoRestante;
+            }
+
+            if (tempoRestante <= 0) {
+                clearInterval(intervalo);
+                botao.disabled = false;
+                botao.innerHTML = 'Reenviar e-mail de confirmação';
+            }
+        }, 1000);
+    }
+</script>
+{% endif %}
+
+<script>
+    // ========================= FOTO PREVIEW =========================
+    const inputFoto = document.getElementById('input_foto');
     if (inputFoto) {
         inputFoto.addEventListener('change', function(event) {
             const file = event.target.files[0];
-
             if (file) {
-                const tamanhoMaximo = 5 * 1024 * 1024; // 5MB
-
-                // 🚨 valida tamanho antes de tudo
+                const tamanhoMaximo = 5 * 1024 * 1024;
                 if (file.size > tamanhoMaximo) {
                     alert('A imagem é muito grande! Máximo permitido: 5MB.');
-
-                    inputFoto.value = ''; // limpa o input
+                    inputFoto.value = '';
                     return;
                 }
-
-                // ✅ preview normal
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('preview_foto').src = e.target.result;
@@ -143,17 +177,13 @@
         });
     }
 
-    // =========================
-    // MOSTRAR/OCULTAR SENHA
-    // =========================
+    // ========================= MOSTRAR/OCULTAR SENHA =========================
     function toggleSenha() {
         const area = document.getElementById('area_senha');
         area.style.display = area.style.display === 'none' ? 'block' : 'none';
     }
 
-    // =========================
-    // SENHA
-    // =========================
+    // ========================= VALIDAÇÃO DE SENHA =========================
     const novaSenha = document.getElementById('nova_senha');
     const confirmarSenha = document.getElementById('confirmar_senha');
     const msg = document.getElementById('msg_senha');
@@ -164,7 +194,6 @@
             confirmarSenha.classList.remove('is-valid', 'is-invalid');
             return;
         }
-
         if (novaSenha.value === confirmarSenha.value) {
             msg.textContent = 'As senhas conferem.';
             msg.className = 'text-success';
@@ -183,18 +212,11 @@
         confirmarSenha.addEventListener("input", validarSenha);
     }
 
-    // =========================
-    // TELEFONE
-    // =========================
+    // ========================= MÁSCARA TELEFONE =========================
     const telefone = document.getElementById('telefone');
-
     function aplicarMascaraTelefone(valor) {
         valor = valor.replace(/\D/g, '');
-
-        if (valor.length > 11) {
-            valor = valor.slice(0, 11);
-        }
-
+        if (valor.length > 11) valor = valor.slice(0, 11);
         if (valor.length <= 10) {
             valor = valor.replace(/^(\d{2})(\d)/, '($1) $2');
             valor = valor.replace(/(\d{4})(\d)/, '$1-$2');
@@ -202,16 +224,12 @@
             valor = valor.replace(/^(\d{2})(\d)/, '($1) $2');
             valor = valor.replace(/(\d{5})(\d)/, '$1-$2');
         }
-
         return valor;
     }
-
     if (telefone) {
         telefone.addEventListener('input', function () {
             this.value = aplicarMascaraTelefone(this.value);
-
             const telefoneLimpo = this.value.replace(/\D/g, '');
-
             if (this.value === '') {
                 this.classList.remove('is-valid', 'is-invalid');
             } else if (telefoneLimpo.length === 10 || telefoneLimpo.length === 11) {
@@ -222,57 +240,44 @@
                 this.classList.remove('is-valid');
             }
         });
-
         telefone.addEventListener('keypress', function (e) {
             const char = String.fromCharCode(e.which);
-            if (!/[0-9]/.test(char)) {
-                e.preventDefault();
-            }
+            if (!/[0-9]/.test(char)) e.preventDefault();
         });
     }
 
-    // =========================
-    // BLOQUEAR NÚMEROS NO NOME
-    // =========================
+    // ========================= VALIDAR NOME =========================
     function permitirApenasLetras(event) {
         const char = String.fromCharCode(event.which);
-        if (!/[A-Za-zÀ-ÿ\s\-]/.test(char)) {
-            event.preventDefault();
-        }
+        if (!/[A-Za-zÀ-ÿ\s\-]/.test(char)) event.preventDefault();
     }
-
     const inputNome = document.querySelector('input[name="nome"]');
     const inputSobrenome = document.querySelector('input[name="sobrenome"]');
-
     if (inputNome) inputNome.addEventListener('keypress', permitirApenasLetras);
     if (inputSobrenome) inputSobrenome.addEventListener('keypress', permitirApenasLetras);
 
-    // =========================
-    // SUBMIT (VALIDAÇÃO FINAL)
-    // =========================
+    // ========================= VALIDAÇÃO FINAL NO SUBMIT =========================
     const form = document.querySelector('form');
-
     form.addEventListener('submit', function (e) {
         const telefoneLimpo = telefone ? telefone.value.replace(/\D/g, '') : '';
-
-        // telefone
         if (telefone && telefone.value && telefoneLimpo.length !== 10 && telefoneLimpo.length !== 11) {
             e.preventDefault();
             telefone.classList.add('is-invalid');
             alert('Informe um telefone válido com DDD.');
             return;
         }
-
-        // senha opcional
         if (novaSenha.value || confirmarSenha.value) {
-
+            if (!document.querySelector('input[name="senha_atual"]').value) {
+                e.preventDefault();
+                alert('Informe sua senha atual para alterar a senha.');
+                return;
+            }
             if (novaSenha.value.length < 6) {
                 e.preventDefault();
                 novaSenha.classList.add('is-invalid');
                 alert('A senha deve ter pelo menos 6 caracteres.');
                 return;
             }
-
             if (novaSenha.value !== confirmarSenha.value) {
                 e.preventDefault();
                 msg.textContent = 'As senhas não coincidem.';
@@ -283,6 +288,7 @@
             }
         }
     });
+
 </script>
 
 {% endblock %}

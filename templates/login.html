@@ -12,8 +12,18 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                     <div class="mb-3">
-                        <label class="form-label">E-mail</label>
-                        <input type="email" name="email" class="form-control" required>
+                        <label class="form-label">CPF</label>
+                        <input
+                            type="text"
+                            name="cpf"
+                            id="cpf"
+                            class="form-control"
+                            required
+                            placeholder="000.000.000-00"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            value="{{ cpf_input }}"
+                        >
                     </div>
 
                     <div class="mb-3">
@@ -71,12 +81,41 @@
                 {% endif %}
 
                 <hr>
-                <p class="text-center mb-0">
-                    Não tem conta?
-                    <a href="{{ url_for('cadastro') }}">Cadastre-se</a>
-                </p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- MÁSCARA DE CPF -->
+<script>
+    const cpfInput = document.getElementById('cpf');
+
+    function aplicarMascaraCPF(valor) {
+        valor = valor.replace(/\D/g, '');
+
+        if (valor.length > 11) {
+            valor = valor.slice(0, 11);
+        }
+
+        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+        valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+
+        return valor;
+    }
+
+    if (cpfInput) {
+        cpfInput.addEventListener('input', function () {
+            this.value = aplicarMascaraCPF(this.value);
+        });
+
+        cpfInput.addEventListener('keypress', function (e) {
+            const char = String.fromCharCode(e.which);
+            if (!/[0-9]/.test(char)) {
+                e.preventDefault();
+            }
+        });
+    }
+</script>
+
 {% endblock %}

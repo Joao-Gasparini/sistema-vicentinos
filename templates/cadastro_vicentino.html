@@ -113,13 +113,12 @@
                 </div>
 
                     <div class="mb-3">
-                        <label class="form-label">E-mail*</label>
+                        <label class="form-label">E-mail*(opcional)</label>
                         <input
                             type="email"
                             name="email"
                             id="email"
                             class="form-control"
-                            required
                             placeholder="exemplo@email.com"
                         >
                         <div id="email-feedback" class="invalid-feedback">
@@ -161,10 +160,6 @@
                 </form>
 
                 <hr>
-                <p class="text-center mb-0">
-                    Já possui conta?
-                    <a href="{{ url_for('login') }}">Fazer login</a>
-                </p>
             </div>
         </div>
     </div>
@@ -291,7 +286,7 @@
         const emailValor = emailInput.value.trim();
         const telefoneLimpo = telefone.value.replace(/\D/g, '');
 
-        if (!regexEmail.test(emailValor)) {
+        if (emailValor !== '' && !regexEmail.test(emailValor)) {
             e.preventDefault();
             emailInput.classList.add('is-invalid');
             emailInput.classList.remove('is-valid');

@@ -4,10 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="limite de tamanho de foto">
+    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="VALIDAÇÃO DE FORMATO DE CPF">
+      <change afterPath="$PROJECT_DIR$/criar_admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/admin_cadastrar_vicentino.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/cadastro_vicentino.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/cadastro_vicentino.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/editar_perfil.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/editar_perfil.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/esqueci_senha.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/esqueci_senha.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/login.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,8 +24,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -187,7 +194,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774298492999</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="VALIDAÇÃO DE FORMATO DE CPF">
+      <option name="closed" value="true" />
+      <created>1774384737906</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1774384737906</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -209,6 +224,7 @@
     <MESSAGE value="Senha de app segura" />
     <MESSAGE value="Proteção CSRF" />
     <MESSAGE value="limite de tamanho de foto" />
-    <option name="LAST_COMMIT_MESSAGE" value="limite de tamanho de foto" />
+    <MESSAGE value="VALIDAÇÃO DE FORMATO DE CPF" />
+    <option name="LAST_COMMIT_MESSAGE" value="VALIDAÇÃO DE FORMATO DE CPF" />
   </component>
 </project>

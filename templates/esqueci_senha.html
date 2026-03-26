@@ -21,11 +21,6 @@
                 </form>
 
                 {% if email_pendente %}
-                    <div class="alert alert-info mt-3">
-                        Se o e-mail estiver cadastrado, o link foi enviado para:
-                        <strong>{{ email_pendente }}</strong>
-                    </div>
-
                     <form method="POST" action="{{ url_for('reenviar_redefinicao') }}" class="mt-2">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="email" value="{{ email_pendente }}">
