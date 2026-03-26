@@ -4,17 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="VALIDAÇÃO DE FORMATO DE CPF">
-      <change afterPath="$PROJECT_DIR$/criar_admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/admin_cadastrar_vicentino.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email">
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/cadastro_vicentino.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/cadastro_vicentino.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/editar_perfil.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/editar_perfil.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/esqueci_senha.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/esqueci_senha.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/login.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -202,7 +193,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774384737906</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email">
+      <option name="closed" value="true" />
+      <created>1774549145199</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1774549145199</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -225,6 +224,7 @@
     <MESSAGE value="Proteção CSRF" />
     <MESSAGE value="limite de tamanho de foto" />
     <MESSAGE value="VALIDAÇÃO DE FORMATO DE CPF" />
-    <option name="LAST_COMMIT_MESSAGE" value="VALIDAÇÃO DE FORMATO DE CPF" />
+    <MESSAGE value="Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email" />
+    <option name="LAST_COMMIT_MESSAGE" value="Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email" />
   </component>
 </project>

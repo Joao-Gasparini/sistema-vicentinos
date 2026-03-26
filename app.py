@@ -22,36 +22,49 @@ import os
 from config import Config
 from models import db, Vicentino
 
-
+# =========================================================
+# INICIALIZAÇÃO DA APLICAÇÃO
+# =========================================================
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Inicialize a proteção CSRF
+# Inicializa a proteção CSRF em todos os formulários
 csrf = CSRFProtect(app)
 
 db.init_app(app)
 mail = Mail(app)
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
+# Define e cria o diretório para armazenar as fotos de perfil dos usuários
 app.config['UPLOAD_FOLDER_USUARIO'] = os.path.join(app.root_path, 'static', 'fotos_perfil')
 os.makedirs(app.config['UPLOAD_FOLDER_USUARIO'], exist_ok=True)
 
+# Limite máximo de upload: 5MB
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+
 
 @app.errorhandler(413)
 def arquivo_muito_grande(e):
+    """Captura o erro 413 (arquivo maior que o limite) e exibe mensagem amigável ao usuário."""
     flash('Arquivo muito grande! Máximo permitido: 5MB.', 'danger')
     return redirect(request.referrer or url_for('home'))
+
 
 # =========================================================
 # FUNÇÕES AUXILIARES
 # =========================================================
+
 def apenas_letras(texto):
+    """Verifica se o texto contém apenas letras (incluindo acentuadas) e espaços."""
     return re.fullmatch(r"[A-Za-zÀ-ÿ\s]+", texto) is not None
 
 
 def email_valido(email):
+    """
+    Valida e normaliza um endereço de e-mail.
+    Retorna o e-mail normalizado se válido, ou None se inválido.
+    """
     try:
         valid = validate_email(email, check_deliverability=False)
         return valid.normalized
@@ -60,6 +73,10 @@ def email_valido(email):
 
 
 def telefone_valido_br(telefone):
+    """
+    Valida um número de telefone brasileiro e o retorna no formato E.164 (+55...).
+    Retorna None se o número for inválido.
+    """
     try:
         numero = phonenumbers.parse(telefone, 'BR')
 
@@ -74,26 +91,39 @@ def telefone_valido_br(telefone):
     except NumberParseException:
         return None
 
+
 def telefone_para_input(telefone_e164):
+    """
+    Converte um telefone no formato E.164 (+55...) para apenas os dígitos locais,
+    removendo o código do país (+55). Usado para preencher campos de formulário.
+    """
     if not telefone_e164:
         return ''
 
-    # remove +55
+    # Remove o prefixo +55
     telefone = telefone_e164.replace('+55', '')
 
-    return telefone  # retorna só números (ex: 11999998888)
+    return telefone  # Retorna só os números (ex: 11999998888)
+
 
 def cpf_valido(cpf):
-    cpf = re.sub(r'\D', '', cpf)  # remove tudo que não for número
+    """
+    Valida um CPF brasileiro verificando:
+    - Se possui 11 dígitos
+    - Se não é uma sequência repetida (ex: 111.111.111-11)
+    - Se os dígitos verificadores são válidos
+    Retorna True se válido, False caso contrário.
+    """
+    cpf = re.sub(r'\D', '', cpf)  # Remove tudo que não for número
 
     if len(cpf) != 11:
         return False
 
-    # elimina CPFs inválidos tipo 11111111111
+    # Elimina CPFs com todos os dígitos iguais (ex: 11111111111)
     if cpf == cpf[0] * 11:
         return False
 
-    # valida 1º dígito
+    # Valida o 1º dígito verificador
     soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
     resto = (soma * 10) % 11
     if resto == 10:
@@ -101,7 +131,7 @@ def cpf_valido(cpf):
     if resto != int(cpf[9]):
         return False
 
-    # valida 2º dígito
+    # Valida o 2º dígito verificador
     soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
     resto = (soma * 10) % 11
     if resto == 10:
@@ -111,11 +141,19 @@ def cpf_valido(cpf):
 
     return True
 
+
 def gerar_token(email, salt):
+    """Gera um token seguro e com tempo de expiração baseado no e-mail e em um salt específico."""
     return serializer.dumps(email, salt=salt)
 
 
 def admin_required(f):
+    """
+    Decorator que protege rotas de acesso exclusivo a administradores.
+    Redireciona para o login se o usuário não estiver autenticado,
+    ou para a home se não for admin.
+    """
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'vicentino_id' not in session:
@@ -128,9 +166,15 @@ def admin_required(f):
             return redirect(url_for('home'))
 
         return f(*args, **kwargs)
+
     return decorated_function
 
+
 def validar_token(token, salt, expiracao):
+    """
+    Valida um token seguro e retorna o e-mail contido nele.
+    Retorna None se o token estiver expirado ou for inválido.
+    """
     try:
         email = serializer.loads(token, salt=salt, max_age=expiracao)
         return email
@@ -141,11 +185,15 @@ def validar_token(token, salt, expiracao):
 
 
 def enviar_email_confirmacao(vicentino):
+    """
+    Gera um token de confirmação e envia um e-mail ao vicentino
+    com o link para ativar sua conta.
+    """
     token = gerar_token(vicentino.email, 'confirmar-email')
     link = url_for('confirmar_email', token=token, _external=True)
 
     msg = Message(
-        subject='Confirmação de cadastro - Famílias Asistidas SSVP',
+        subject='Confirmação de cadastro - Famílias Assistidas SSVP',
         recipients=[vicentino.email]
     )
 
@@ -164,11 +212,15 @@ Se você não solicitou este cadastro, ignore este e-mail.
 
 
 def enviar_email_redefinicao(vicentino):
+    """
+    Gera um token de redefinição e envia um e-mail ao vicentino
+    com o link para cadastrar uma nova senha.
+    """
     token = gerar_token(vicentino.email, 'redefinir-senha')
     link = url_for('redefinir_senha', token=token, _external=True)
 
     msg = Message(
-        subject='Redefinição de senha - Famílias Asistidas SSVP',
+        subject='Redefinição de senha - Famílias Assistidas SSVP',
         recipients=[vicentino.email]
     )
 
@@ -189,8 +241,10 @@ Se você não solicitou essa alteração, ignore este e-mail.
 # =========================================================
 # ROTAS PÚBLICAS / INICIAIS
 # =========================================================
+
 @app.route('/')
 def home():
+    """Redireciona para o dashboard se logado, ou para o login se não autenticado."""
     if 'vicentino_id' in session:
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
@@ -198,33 +252,37 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    cpf_input = ''  # valor padrão vazio
+    """
+    Exibe e processa o formulário de login.
+    Valida o CPF e a senha, e inicia a sessão do usuário autenticado.
+    """
+    cpf_input = ''  # Valor padrão para manter o campo preenchido em caso de erro
 
     if request.method == 'POST':
         cpf_input = request.form.get('cpf', '').strip()
         senha = request.form.get('senha', '')
 
-        # Remove máscara do CPF
+        # Remove a máscara do CPF (pontos e traço)
         cpf = re.sub(r'\D', '', cpf_input)
 
-        # Validação básica
+        # Validação básica dos campos
         if not cpf or not senha:
             flash('Informe CPF e senha.', 'danger')
             return render_template('login.html', cpf_input=cpf_input)
 
-        # Validação de CPF real
+        # Validação do formato do CPF
         if not cpf_valido(cpf):
             flash('CPF inválido.', 'danger')
             return render_template('login.html', cpf_input=cpf_input)
 
-        # Busca no banco
+        # Busca o usuário no banco e verifica a senha
         vicentino = Vicentino.query.filter_by(cpf=cpf).first()
 
         if not vicentino or not check_password_hash(vicentino.senha_hash, senha):
             flash('CPF ou senha incorretos.', 'danger')
             return render_template('login.html', cpf_input=cpf_input)
 
-        # Login bem-sucedido
+        # Login bem-sucedido: armazena dados na sessão
         session['vicentino_id'] = vicentino.id
         session['vicentino_nome'] = vicentino.nome
         session['vicentino_email'] = vicentino.email
@@ -234,18 +292,23 @@ def login():
         flash('Login realizado com sucesso.', 'success')
         return redirect(url_for('dashboard'))
 
-    # GET: envia cpf_input vazio
+    # GET: renderiza o formulário com o campo CPF vazio
     return render_template('login.html', cpf_input='')
+
 
 @app.route('/admin/cadastrar_vicentino', methods=['GET', 'POST'])
 @admin_required
 def cadastrar_vicentino():
+    """
+    Rota exclusiva para administradores cadastrarem novos vicentinos.
+    Valida todos os campos, cria o usuário no banco e envia e-mail de confirmação se necessário.
+    Usuários sem e-mail são ativados diretamente; com e-mail ficam com status 'pendente'.
+    """
     if request.method == 'POST':
         nome = request.form.get('nome', '').strip()
         sobrenome = request.form.get('sobrenome', '').strip()
         cpf_input = request.form.get('cpf', '').strip()
-        # remove máscara
-        cpf = re.sub(r'\D', '', cpf_input)
+        cpf = re.sub(r'\D', '', cpf_input)  # Remove a máscara do CPF
         email_informado = request.form.get('email', '').strip()
         telefone = request.form.get('telefone', '').strip()
         senha = request.form.get('senha', '')
@@ -254,6 +317,7 @@ def cadastrar_vicentino():
         conselho = request.form.get('conselho', '').strip()
         conferencia = request.form.get('conferencia', '').strip()
 
+        # Valida e normaliza o e-mail (campo opcional)
         if email_informado == '':
             email = None
         else:
@@ -262,24 +326,27 @@ def cadastrar_vicentino():
                 flash('Informe um e-mail válido.', 'danger')
                 return redirect(url_for('cadastrar_vicentino'))
 
+        # Verifica campos obrigatórios
         if not nome or not sobrenome or not senha or not confirmar_senha:
             flash('Preencha todos os campos obrigatórios.', 'danger')
             return redirect(url_for('cadastrar_vicentino'))
 
+        # Valida que nome e sobrenome contêm apenas letras
         if not apenas_letras(nome) or not apenas_letras(sobrenome):
             flash('Nome e sobrenome devem conter apenas letras.', 'danger')
             return redirect(url_for('cadastrar_vicentino'))
 
+        # Valida o CPF se fornecido e verifica duplicidade
         if cpf:
             if not cpf_valido(cpf):
                 flash('CPF inválido.', 'danger')
                 return redirect(url_for('cadastrar_vicentino'))
 
-            # verifica se já existe
             if Vicentino.query.filter_by(cpf=cpf).first():
                 flash('Já existe um usuário com esse CPF.', 'danger')
                 return redirect(url_for('cadastrar_vicentino'))
 
+        # Valida a senha
         if len(senha) < 6:
             flash('A senha deve ter pelo menos 6 caracteres.', 'danger')
             return redirect(url_for('cadastrar_vicentino'))
@@ -288,20 +355,22 @@ def cadastrar_vicentino():
             flash('As senhas não coincidem.', 'danger')
             return redirect(url_for('cadastrar_vicentino'))
 
+        # Verifica duplicidade de e-mail
         if email:
             usuario_email = Vicentino.query.filter_by(email=email).first()
             if usuario_email:
                 flash('Já existe um vicentino cadastrado com este e-mail.', 'danger')
                 return redirect(url_for('cadastrar_vicentino'))
 
-        # 👉 AQUI MUDA A LÓGICA
+        # Define o status inicial com base na presença de e-mail
         if email:
-            status = 'pendente'
+            status = 'pendente'  # Aguarda confirmação por e-mail
             email_confirmado = False
         else:
-            status = 'ativo'
+            status = 'ativo'  # Sem e-mail: ativa diretamente
             email_confirmado = True
 
+        # Cria e persiste o novo vicentino no banco
         novo_vicentino = Vicentino(
             nome=nome,
             sobrenome=sobrenome,
@@ -320,6 +389,7 @@ def cadastrar_vicentino():
         db.session.add(novo_vicentino)
         db.session.commit()
 
+        # Envia e-mail de confirmação se houver endereço cadastrado
         if email:
             try:
                 enviar_email_confirmacao(novo_vicentino)
@@ -333,8 +403,10 @@ def cadastrar_vicentino():
 
     return render_template('cadastro_vicentino.html')
 
+
 @app.route('/logout')
 def logout():
+    """Encerra a sessão do usuário e redireciona para a página de login."""
     session.clear()
     flash('Você saiu do sistema.', 'info')
     return redirect(url_for('login'))
@@ -343,8 +415,13 @@ def logout():
 # =========================================================
 # CONFIRMAÇÃO DE E-MAIL
 # =========================================================
+
 @app.route('/confirmar_email/<token>')
 def confirmar_email(token):
+    """
+    Valida o token de confirmação de e-mail recebido por link.
+    Ativa a conta do usuário se o token for válido e ainda não tiver sido confirmado.
+    """
     email = validar_token(token, 'confirmar-email', 86400)
 
     if not email:
@@ -361,6 +438,7 @@ def confirmar_email(token):
         flash('Este e-mail já foi confirmado. Faça login.', 'info')
         return redirect(url_for('login'))
 
+    # Ativa a conta e registra a data de confirmação
     vicentino.email_confirmado = True
     vicentino.status = 'ativo'
     vicentino.data_confirmacao = datetime.utcnow()
@@ -372,21 +450,20 @@ def confirmar_email(token):
 
 @app.route('/reenviar_confirmacao', methods=['POST'])
 def reenviar_confirmacao():
+    """
+    Reenvia o e-mail de confirmação de conta para o usuário.
+    Funciona tanto para usuários logados quanto deslogados.
+    Aplica controle de tempo (cooldown de 50 segundos) entre reenvios.
+    """
     agora = int(time.time())
     tempo_espera = 50
 
-    # -------------------------
-    # Usuário logado
-    # -------------------------
+    # Identifica o usuário logado ou pelo e-mail informado no formulário
     if 'vicentino_id' in session:
         usuario = Vicentino.query.get(session['vicentino_id'])
         if not usuario:
             flash('Usuário não encontrado. Faça login novamente.', 'danger')
             return redirect(url_for('login'))
-
-    # -------------------------
-    # Usuário deslogado
-    # -------------------------
     else:
         email = request.form.get('email', '').strip().lower()
         if not email:
@@ -395,31 +472,25 @@ def reenviar_confirmacao():
 
         usuario = Vicentino.query.filter_by(email=email).first()
         if not usuario:
+            # Mensagem genérica para evitar enumeração de e-mails
             flash('Se o e-mail estiver cadastrado, um novo link será enviado.', 'info')
             return redirect(url_for('login'))
 
-    # -------------------------
-    # Já confirmado
-    # -------------------------
+    # Verifica se o e-mail já está confirmado
     if usuario.email_confirmado:
         session.pop('email_pendente_confirmacao', None)
         session.pop('ultimo_envio_confirmacao', None)
-        msg = 'Seu e-mail já está confirmado.'
-        flash(msg, 'info')
+        flash('Seu e-mail já está confirmado.', 'info')
         return redirect(url_for('editar_perfil')) if 'vicentino_id' in session else redirect(url_for('login'))
 
-    # -------------------------
-    # Controle de tempo entre envios
-    # -------------------------
+    # Aplica cooldown entre reenvios
     ultimo_envio = session.get('ultimo_envio_confirmacao', 0)
     if agora - ultimo_envio < tempo_espera:
         restantes = tempo_espera - (agora - ultimo_envio)
         flash(f'Aguarde {restantes} segundos para reenviar o e-mail.', 'warning')
         return redirect(url_for('editar_perfil')) if 'vicentino_id' in session else redirect(url_for('login'))
 
-    # -------------------------
-    # Envio do e-mail
-    # -------------------------
+    # Realiza o envio e atualiza o controle de tempo na sessão
     try:
         enviar_email_confirmacao(usuario)
         session['email_pendente_confirmacao'] = usuario.email
@@ -428,16 +499,21 @@ def reenviar_confirmacao():
     except Exception as e:
         flash(f'Erro ao reenviar e-mail: {str(e)}', 'danger')
 
-    # -------------------------
-    # Redirecionamento final
-    # -------------------------
     return redirect(url_for('editar_perfil')) if 'vicentino_id' in session else redirect(url_for('login'))
+
 
 # =========================================================
 # RECUPERAÇÃO DE SENHA
 # =========================================================
+
 @app.route('/esqueci_senha', methods=['GET', 'POST'])
 def esqueci_senha():
+    """
+    Gerencia a recuperação e alteração de senha.
+    - Usuário logado: pode alterar a senha diretamente ou solicitar link por e-mail.
+    - Usuário deslogado: solicita link de redefinição via e-mail.
+    Aplica cooldown de 50 segundos entre envios de e-mail.
+    """
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
         nova_senha = request.form.get('nova_senha', '').strip()
@@ -446,9 +522,7 @@ def esqueci_senha():
         agora = int(time.time())
         tempo_espera = 50
 
-        # ==========================
-        # Usuário logado altera senha direto
-        # ==========================
+        # Alteração direta de senha para usuário logado
         if 'vicentino_id' in session and nova_senha and confirmar_senha:
             vicentino = Vicentino.query.get(session['vicentino_id'])
             if not vicentino:
@@ -464,15 +538,12 @@ def esqueci_senha():
             flash('Senha alterada com sucesso!', 'success')
             return redirect(url_for('dashboard'))
 
-        # ==========================
-        # Usuário deslogado pede link de redefinição ou usuário logado sem nova senha
-        # ==========================
-        # Se não passou e-mail (apenas necessário para deslogado)
+        # Solicita link por e-mail (usuário deslogado sem e-mail informado)
         if not email and 'vicentino_id' not in session:
             flash('Informe seu e-mail.', 'danger')
             return redirect(url_for('esqueci_senha'))
 
-        # Pega usuário correto
+        # Busca o vicentino correto conforme o contexto (logado ou não)
         if 'vicentino_id' in session:
             vicentino = Vicentino.query.get(session['vicentino_id'])
             if not vicentino:
@@ -481,46 +552,45 @@ def esqueci_senha():
         else:
             vicentino = Vicentino.query.filter_by(email=email).first()
 
-        # Se existe usuário
         if vicentino:
+            # Bloqueia redefinição se o e-mail ainda não foi confirmado
             if not vicentino.email_confirmado:
                 flash('E-mail ainda não confirmado. Solicite ativação ou contate o administrador.', 'warning')
                 return redirect(url_for('login'))
 
-            # Controle de tempo entre envios
+            # Aplica cooldown entre envios
             ultimo_envio = session.get('ultimo_envio_redefinicao', 0)
             if agora - ultimo_envio < tempo_espera:
                 restantes = tempo_espera - (agora - ultimo_envio)
                 flash(f'Aguarde {restantes} segundos para reenviar o e-mail de redefinição.', 'warning')
                 return redirect(url_for('esqueci_senha'))
 
-            # Envia e-mail de redefinição
+            # Envia e-mail de redefinição e registra na sessão
             try:
                 enviar_email_redefinicao(vicentino)
                 session['email_pendente_redefinicao'] = vicentino.email
                 session['ultimo_envio_redefinicao'] = int(time.time())
-                flash('Se o e-mail estiver cadastrado e confirmado, você receberá um link para redefinir a senha.', 'info')
+                flash('Se o e-mail estiver cadastrado e confirmado, você receberá um link para redefinir a senha.',
+                      'info')
             except Exception as e:
                 flash(f'Erro ao enviar e-mail: {str(e)}', 'danger')
                 return redirect(url_for('esqueci_senha'))
         else:
-            # Caso usuário não exista, apenas registra o e-mail na sessão para controle de tempo
+            # Resposta genérica para evitar enumeração de e-mails
             session['email_pendente_redefinicao'] = email
             session['ultimo_envio_redefinicao'] = int(time.time())
             flash('Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.', 'info')
 
         return redirect(url_for('esqueci_senha'))
 
-    # ==========================
-    # GET - CONTROLE DE TEMPO PARA REENVIO
-    # ==========================
+    # GET: verifica tempo restante do cooldown e renderiza a página
     email_pendente = session.get('email_pendente_redefinicao')
     ultimo_envio = session.get('ultimo_envio_redefinicao', 0)
     agora = int(time.time())
 
     tempo_restante = max(0, 50 - (agora - ultimo_envio)) if email_pendente else 0
 
-    # Limpa sessão se tempo expirou
+    # Limpa os dados de sessão se o cooldown já expirou
     if email_pendente and tempo_restante == 0:
         session.pop('email_pendente_redefinicao', None)
         session.pop('ultimo_envio_redefinicao', None)
@@ -532,10 +602,17 @@ def esqueci_senha():
         tempo_restante=tempo_restante
     )
 
+
 @app.route('/reenviar_redefinicao', methods=['POST'])
 def reenviar_redefinicao():
+    """
+    Reenvia o e-mail de redefinição de senha.
+    O e-mail pode vir do formulário ou da sessão ativa.
+    Aplica cooldown de 50 segundos entre reenvios.
+    """
     email = request.form.get('email', '').strip().lower()
 
+    # Usa o e-mail da sessão como fallback
     if not email:
         email = session.get('email_pendente_redefinicao', '').strip().lower()
 
@@ -546,6 +623,7 @@ def reenviar_redefinicao():
     ultimo_envio = session.get('ultimo_envio_redefinicao', 0)
     agora = int(time.time())
 
+    # Verifica o cooldown antes de reenviar
     if agora - ultimo_envio < 50:
         restantes = 50 - (agora - ultimo_envio)
         flash(f'Aguarde {restantes} segundos para reenviar o e-mail de redefinição.', 'warning')
@@ -563,6 +641,7 @@ def reenviar_redefinicao():
             flash(f'Erro ao reenviar e-mail: {str(e)}', 'danger')
             return redirect(url_for('esqueci_senha'))
     else:
+        # Resposta genérica para evitar enumeração de e-mails
         session['email_pendente_redefinicao'] = email
         session['ultimo_envio_redefinicao'] = int(time.time())
         flash('Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.', 'info')
@@ -572,6 +651,11 @@ def reenviar_redefinicao():
 
 @app.route('/redefinir_senha/<token>', methods=['GET', 'POST'])
 def redefinir_senha(token):
+    """
+    Exibe e processa o formulário de redefinição de senha via token.
+    Valida o token, verifica os campos e atualiza a senha no banco.
+    Limpa os dados de sessão relacionados à redefinição após o sucesso.
+    """
     email = validar_token(token, 'redefinir-senha', 900)
 
     if not email:
@@ -596,6 +680,7 @@ def redefinir_senha(token):
             flash('As senhas não coincidem.', 'danger')
             return redirect(url_for('redefinir_senha', token=token))
 
+        # Atualiza a senha e limpa os dados de sessão relacionados
         vicentino.senha_hash = generate_password_hash(senha)
         db.session.commit()
 
@@ -613,8 +698,13 @@ def redefinir_senha(token):
 # =========================================================
 # ÁREA LOGADA
 # =========================================================
+
 @app.route('/dashboard')
 def dashboard():
+    """
+    Exibe o painel principal do sistema.
+    Redireciona para o login se o usuário não estiver autenticado.
+    """
     if 'vicentino_id' not in session:
         flash('Faça login para acessar o sistema.', 'warning')
         return redirect(url_for('login'))
@@ -624,14 +714,22 @@ def dashboard():
 
 @app.route('/perfil')
 def perfil():
+    """Exibe a página de perfil do usuário logado."""
     if 'vicentino_id' not in session:
         return redirect(url_for('login'))
 
     usuario = Vicentino.query.get(session['vicentino_id'])
     return render_template('perfil.html', usuario=usuario)
 
+
 @app.route('/editar_perfil', methods=['GET', 'POST'])
 def editar_perfil():
+    """
+    Exibe e processa o formulário de edição de perfil do usuário logado.
+    Permite atualizar nome, sobrenome, telefone, foto de perfil e senha.
+    Administradores também podem editar conselho e conferência.
+    Inclui reenvio de e-mail de confirmação com controle de cooldown.
+    """
     if 'vicentino_id' not in session:
         flash('Faça login para acessar seu perfil.', 'warning')
         return redirect(url_for('login'))
@@ -647,13 +745,13 @@ def editar_perfil():
     extensoes_permitidas = {'jpg', 'jpeg', 'png', 'webp'}
     agora = int(time.time())
     ultimo_envio = session.get('ultimo_envio_confirmacao', 0)
+
+    # Calcula o tempo restante do cooldown de reenvio de confirmação
     tempo_restante = max(0, 50 - (agora - ultimo_envio)) if usuario.email and not usuario.email_confirmado else 0
 
     if request.method == 'POST':
 
-        # =========================
-        # REENVIAR CONFIRMAÇÃO
-        # =========================
+        # ── Reenvio de confirmação de e-mail ──────────────────────────────
         if 'reenviar_confirmacao' in request.form:
             if not usuario.email:
                 flash('Você não possui e-mail cadastrado.', 'warning')
@@ -701,9 +799,7 @@ def editar_perfil():
                 tempo_restante=tempo_restante
             )
 
-        # =========================
-        # CAMPOS DO FORMULÁRIO
-        # =========================
+        # ── Leitura dos campos do formulário ──────────────────────────────
         nome = request.form.get('nome', '').strip()
         sobrenome = request.form.get('sobrenome', '').strip()
         telefone = request.form.get('telefone', '').strip()
@@ -714,9 +810,7 @@ def editar_perfil():
         nova_senha = request.form.get('nova_senha', '').strip()
         confirmar_senha = request.form.get('confirmar_senha', '').strip()
 
-        # =========================
-        # VALIDAÇÕES
-        # =========================
+        # ── Validação dos campos de texto ─────────────────────────────────
         if not nome:
             erros['nome'] = 'Informe o nome.'
         elif not apenas_letras(nome):
@@ -727,6 +821,7 @@ def editar_perfil():
         elif not apenas_letras(sobrenome):
             erros['sobrenome'] = 'O sobrenome deve conter apenas letras.'
 
+        # Valida o telefone removendo a máscara antes
         telefone_formatado = None
         if telefone:
             telefone_numeros = re.sub(r'\D', '', telefone)
@@ -736,9 +831,7 @@ def editar_perfil():
             if not telefone_formatado:
                 erros['telefone'] = 'Telefone inválido.'
 
-        # =========================
-        # FOTO
-        # =========================
+        # ── Validação e processamento da foto de perfil ───────────────────
         foto = request.files.get('foto')
         imagem = None
         if foto and foto.filename:
@@ -750,18 +843,19 @@ def editar_perfil():
                 try:
                     foto.stream.seek(0)
                     imagem = Image.open(foto)
+                    # Converte para RGB se necessário (ex: PNG com transparência)
                     if imagem.mode in ('RGBA', 'P'):
                         imagem = imagem.convert('RGB')
+                    # Redimensiona para 400x400 px
                     imagem = imagem.resize((400, 400), Image.Resampling.LANCZOS)
                 except UnidentifiedImageError:
                     erros['foto'] = 'Arquivo inválido. Envie apenas imagens.'
                 except Exception:
                     erros['foto'] = 'Não foi possível processar a imagem.'
 
-        # =========================
-        # SENHA
-        # =========================
+        # ── Validação e atualização de senha ──────────────────────────────
         if any([senha_atual, nova_senha, confirmar_senha]):
+            # Troca de senha só é permitida para usuários com e-mail cadastrado
             if not usuario.email:
                 flash('Você não possui email cadastrado. Procure a secretaria.', 'warning')
                 return render_template(
@@ -784,12 +878,11 @@ def editar_perfil():
                 erros['confirmar_senha'] = 'A confirmação da senha não coincide.'
             if nova_senha and len(nova_senha) < 6:
                 erros['nova_senha'] = 'A nova senha deve ter pelo menos 6 caracteres.'
+            # Aplica a nova senha apenas se todas as validações passaram
             if 'senha_atual' not in erros and 'nova_senha' not in erros and 'confirmar_senha' not in erros:
                 usuario.senha_hash = generate_password_hash(nova_senha)
 
-        # =========================
-        # SE HOUVER ERROS
-        # =========================
+        # ── Retorna com erros se houver problemas de validação ────────────
         if erros:
             for campo, mensagem in erros.items():
                 flash(mensagem, 'danger')
@@ -801,37 +894,37 @@ def editar_perfil():
                 tempo_restante=tempo_restante
             )
 
-        # =========================
-        # ATUALIZA DADOS
-        # =========================
+        # ── Atualiza os dados no banco ────────────────────────────────────
         usuario.nome = nome
         usuario.sobrenome = sobrenome
         usuario.telefone = telefone_formatado if telefone else None
+
+        # Campos exclusivos para administradores
         if usuario.tipo == 'admin':
             usuario.conselho = conselho if conselho else None
             usuario.conferencia = conferencia if conferencia else None
+
         db.session.commit()
 
-        # =========================
-        # SALVAR FOTO
-        # =========================
+        # ── Salva a foto de perfil no disco ──────────────────────────────
         if imagem:
             try:
                 nome_arquivo = f'vicentino_{usuario.id}.jpg'
                 caminho_foto = os.path.join(app.config['UPLOAD_FOLDER_USUARIO'], nome_arquivo)
+
+                # Remove a foto anterior se existir
                 if usuario.foto:
                     caminho_antigo = os.path.join(app.config['UPLOAD_FOLDER_USUARIO'], usuario.foto)
                     if os.path.exists(caminho_antigo):
                         os.remove(caminho_antigo)
+
                 imagem.save(caminho_foto, quality=90)
                 usuario.foto = nome_arquivo
                 db.session.commit()
             except Exception:
                 flash('Perfil atualizado, mas houve erro ao salvar a imagem.', 'warning')
 
-        # =========================
-        # ATUALIZA SESSÃO
-        # =========================
+        # ── Atualiza os dados da sessão ───────────────────────────────────
         session['vicentino_nome'] = usuario.nome
         session['vicentino_email'] = usuario.email
         session['vicentino_foto'] = usuario.foto if usuario.foto else None
@@ -845,9 +938,7 @@ def editar_perfil():
             tempo_restante=tempo_restante
         )
 
-    # =========================
-    # GET - RENDERIZA PÁGINA
-    # =========================
+    # GET: renderiza a página com os dados atuais do usuário
     return render_template(
         'editar_perfil.html',
         usuario=usuario,
@@ -855,6 +946,7 @@ def editar_perfil():
         telefone_input=telefone_para_input(usuario.telefone),
         tempo_restante=tempo_restante
     )
+
 
 if __name__ == '__main__':
     with app.app_context():
