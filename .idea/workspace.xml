@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email">
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-    </list>
+    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="app.py indentado e comentado." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -201,7 +199,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774549145199</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="app.py indentado e comentado.">
+      <option name="closed" value="true" />
+      <created>1774549793168</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1774549793168</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -225,6 +231,7 @@
     <MESSAGE value="limite de tamanho de foto" />
     <MESSAGE value="VALIDAÇÃO DE FORMATO DE CPF" />
     <MESSAGE value="Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email" />
-    <option name="LAST_COMMIT_MESSAGE" value="Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email" />
+    <MESSAGE value="app.py indentado e comentado." />
+    <option name="LAST_COMMIT_MESSAGE" value="app.py indentado e comentado." />
   </component>
 </project>
