@@ -38,10 +38,27 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">CPF</label>
-                <input type="text" class="form-control" value="{{ usuario.cpf }}" readonly>
+                <label class="form-label">
+                    {% if usuario.tipo == 'admin' %}
+                        CNPJ
+                    {% else %}
+                        CPF
+                    {% endif %}
+                </label>
+
+                <input type="text"
+                   name="cpf"
+                   id="cpf_cnpj"
+                   class="form-control {% if usuario.tipo != 'admin' %}bg-light{% endif %}"
+                   value="{{ usuario.cnpj if usuario.tipo == 'admin' else usuario.cpf }}"
+                   {% if usuario.tipo != 'admin' %}readonly{% endif %}>
+
                 <small class="text-muted">
-                    Se o CPF estiver incorreto, solicite a correção ao responsável pelo sistema.
+                    {% if usuario.tipo == 'admin' %}
+                        Informe o CNPJ.
+                    {% else %}
+                        Se o CPF estiver incorreto, solicite a correção ao responsável pelo sistema.
+                    {% endif %}
                 </small>
             </div>
 

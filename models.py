@@ -10,7 +10,9 @@ class Vicentino(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(80), nullable=False)
     sobrenome = db.Column(db.String(120), nullable=False)
-    cpf = db.Column(db.String(14), unique=True)
+    cpf = db.Column(db.String(11), unique=True, nullable=True)
+    cnpj = db.Column(db.String(14), unique=True, nullable=True)
+    tipo = db.Column(db.String(20), nullable=False)  # 'admin' ou 'vicentino'
     email = db.Column(db.String(150), unique=True, nullable=True)
     telefone = db.Column(db.String(25))
     senha_hash = db.Column(db.String(255), nullable=False)

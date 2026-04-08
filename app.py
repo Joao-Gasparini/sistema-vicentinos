@@ -105,42 +105,85 @@ def telefone_para_input(telefone_e164):
 
     return telefone  # Retorna só os números (ex: 11999998888)
 
+# =========================================================
+# DOCUMENTOS (CPF / CNPJ)
+# =========================================================
+
+def limpar_numero(valor):
+    """Remove qualquer caractere que não seja número."""
+    return re.sub(r'\D', '', valor)
+
 
 def cpf_valido(cpf):
     """
     Valida um CPF brasileiro verificando:
     - Se possui 11 dígitos
-    - Se não é uma sequência repetida (ex: 111.111.111-11)
+    - Se não é sequência repetida
     - Se os dígitos verificadores são válidos
-    Retorna True se válido, False caso contrário.
     """
-    cpf = re.sub(r'\D', '', cpf)  # Remove tudo que não for número
+    cpf = limpar_numero(cpf)
 
-    if len(cpf) != 11:
+    if len(cpf) != 11 or cpf == cpf[0] * 11:
         return False
 
-    # Elimina CPFs com todos os dígitos iguais (ex: 11111111111)
-    if cpf == cpf[0] * 11:
-        return False
-
-    # Valida o 1º dígito verificador
+    # 1º dígito
     soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
     resto = (soma * 10) % 11
-    if resto == 10:
-        resto = 0
+    resto = 0 if resto == 10 else resto
     if resto != int(cpf[9]):
         return False
 
-    # Valida o 2º dígito verificador
+    # 2º dígito
     soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
     resto = (soma * 10) % 11
-    if resto == 10:
-        resto = 0
+    resto = 0 if resto == 10 else resto
     if resto != int(cpf[10]):
         return False
 
     return True
 
+
+def cnpj_valido(cnpj):
+    """
+    Valida um CNPJ brasileiro verificando:
+    - Se possui 14 dígitos
+    - Se não é sequência repetida
+    - Se os dígitos verificadores são válidos
+    """
+    cnpj = limpar_numero(cnpj)
+
+    if len(cnpj) != 14 or cnpj == cnpj[0] * 14:
+        return False
+
+    pesos1 = [5,4,3,2,9,8,7,6,5,4,3,2]
+    pesos2 = [6] + pesos1
+
+    soma = sum(int(cnpj[i]) * pesos1[i] for i in range(12))
+    dig1 = 11 - (soma % 11)
+    dig1 = dig1 if dig1 < 10 else 0
+
+    soma = sum(int(cnpj[i]) * pesos2[i] for i in range(13))
+    dig2 = 11 - (soma % 11)
+    dig2 = dig2 if dig2 < 10 else 0
+
+    return cnpj[-2:] == f"{dig1}{dig2}"
+
+
+def documento_valido(documento, tipo_usuario):
+    """
+    Valida CPF ou CNPJ dependendo do tipo do usuário.
+    - admin → CNPJ
+    - vicentino → CPF
+    """
+    documento = limpar_numero(documento)
+
+    if not documento:
+        return False
+
+    if tipo_usuario == 'admin':
+        return cnpj_valido(documento)
+    else:
+        return cpf_valido(documento)
 
 def gerar_token(email, salt):
     """Gera um token seguro e com tempo de expiração baseado no e-mail e em um salt específico."""
@@ -711,6 +754,12 @@ def dashboard():
 
     return render_template('dashboard.html')
 
+@app.route('/admin/vicentinos')
+@admin_required
+def listar_vicentinos():
+    vicentinos = Vicentino.query.all()
+    return render_template('admin_lista_vicentinos.html', vicentinos=vicentinos)
+
 
 @app.route('/perfil')
 def perfil():
@@ -805,7 +854,8 @@ def editar_perfil():
         telefone = request.form.get('telefone', '').strip()
         conselho = request.form.get('conselho', '').strip()
         conferencia = request.form.get('conferencia', '').strip()
-
+        cpf_input = request.form.get('cpf', '').strip()
+        documento = limpar_numero(cpf_input)
         senha_atual = request.form.get('senha_atual', '').strip()
         nova_senha = request.form.get('nova_senha', '').strip()
         confirmar_senha = request.form.get('confirmar_senha', '').strip()
@@ -903,6 +953,10 @@ def editar_perfil():
         if usuario.tipo == 'admin':
             usuario.conselho = conselho if conselho else None
             usuario.conferencia = conferencia if conferencia else None
+            usuario.cnpj = documento if documento else None
+            usuario.cpf = None
+        else:
+            usuario.cpf = documento if documento else None
 
         db.session.commit()
 
@@ -947,6 +1001,104 @@ def editar_perfil():
         tempo_restante=tempo_restante
     )
 
+# =============================
+@app.route('/admin/editar_vicentino/<int:id>', methods=['GET', 'POST'])
+@admin_required
+def editar_vicentino_admin(id):
+    usuario = Vicentino.query.get_or_404(id)
+
+    erros = {}
+
+    if request.method == 'POST':
+        nome = request.form.get('nome', '').strip()
+        sobrenome = request.form.get('sobrenome', '').strip()
+        cpf_input = request.form.get('cpf', '').strip()
+        documento = limpar_numero(cpf_input)
+        # Documento (CPF ou CNPJ)
+        telefone = request.form.get('telefone', '').strip()
+        conselho = request.form.get('conselho', '').strip()
+        conferencia = request.form.get('conferencia', '').strip()
+
+        # =============================
+        # VALIDAÇÕES
+        # =============================
+
+        if not nome or not apenas_letras(nome):
+            erros['nome'] = 'Nome inválido.'
+
+        if not sobrenome or not apenas_letras(sobrenome):
+            erros['sobrenome'] = 'Sobrenome inválido.'
+
+        # =============================
+        # VALIDAÇÃO DE CPF/CNPJ (FORA DO IF)
+        # =============================
+        if documento:
+            if not documento_valido(documento, usuario.tipo):
+                erros['cpf'] = 'Documento inválido.'
+            else:
+                # Verifica duplicidade
+                if usuario.tipo == 'admin':
+                    existente = Vicentino.query.filter_by(cnpj=documento).first()
+                else:
+                    existente = Vicentino.query.filter_by(cpf=documento).first()
+
+                if existente and existente.id != usuario.id:
+                    erros['cpf'] = 'Documento já cadastrado.'
+
+        # CPF (admin pode editar)
+        if documento:
+            if not documento_valido(documento, usuario.tipo):
+                erros['cpf'] = 'Documento inválido.'
+            else:
+                existente = Vicentino.query.filter_by(cpf=cpf).first()
+                if existente and existente.id != usuario.id:
+                    erros['cpf'] = 'CPF já cadastrado.'
+
+        # Telefone
+        telefone_formatado = None
+        if telefone:
+            telefone_numeros = re.sub(r'\D', '', telefone)
+
+            if telefone_numeros.startswith('55') and len(telefone_numeros) > 10:
+                telefone_numeros = telefone_numeros[2:]
+
+            telefone_formatado = telefone_valido_br(telefone_numeros)
+
+            if not telefone_formatado:
+                erros['telefone'] = 'Telefone inválido.'
+
+        # =============================
+        # SE TIVER ERRO → VOLTA
+        # =============================
+        if erros:
+            for msg in erros.values():
+                flash(msg, 'danger')
+
+            return render_template('admin_editar_vicentino.html', usuario=usuario)
+
+        # =============================
+        # ATUALIZAÇÃO
+        # =============================
+        usuario.nome = nome
+        usuario.sobrenome = sobrenome
+        if usuario.tipo == 'admin':
+            usuario.cnpj = documento if documento else None
+            usuario.cpf = None
+        else:
+            usuario.cpf = documento if documento else None
+        usuario.telefone = telefone_formatado if telefone else None
+        usuario.conselho = conselho if conselho else None
+        usuario.conferencia = conferencia if conferencia else None
+
+        db.session.commit()
+
+        flash('Vicentino atualizado com sucesso!', 'success')
+        return redirect(url_for('listar_vicentinos'))
+
+    # =============================
+    # GET
+    # =============================
+    return render_template('admin_editar_vicentino.html', usuario=usuario)
 
 if __name__ == '__main__':
     with app.app_context():

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Lista de Vicentinos</h3>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vicentinos %}
+            <tr>
+                <td>{{ v.nome }} {{ v.sobrenome }}</td>
+                <td>{{ v.cpf }}</td>
+                <td>
+                    <a href="{{ url_for('editar_vicentino_admin', id=v.id) }}" class="btn btn-sm btn-primary">Editar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

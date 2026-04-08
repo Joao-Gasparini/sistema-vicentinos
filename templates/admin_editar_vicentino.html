@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Editar Vicentino</h3>
+
+    <form method="POST">
+        <div class="row">
+            <div class="col-md-6">
+                <label>Nome</label>
+                <input type="text" name="nome" class="form-control" value="{{ usuario.nome }}" required>
+            </div>
+
+            <div class="col-md-6">
+                <label>Sobrenome</label>
+                <input type="text" name="sobrenome" class="form-control" value="{{ usuario.sobrenome }}" required>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <label>CPF</label>
+            <input type="text" name="cpf" class="form-control" value="{{ usuario.cpf or '' }}">
+        </div>
+
+        <div class="mt-3">
+            <label>Telefone</label>
+            <input type="text" name="telefone" class="form-control" value="{{ usuario.telefone or '' }}">
+        </div>
+
+        <div class="mt-3">
+            <label>Conselho</label>
+            <input type="text" name="conselho" class="form-control" value="{{ usuario.conselho or '' }}">
+        </div>
+
+        <div class="mt-3">
+            <label>Conferência</label>
+            <input type="text" name="conferencia" class="form-control" value="{{ usuario.conferencia or '' }}">
+        </div>
+
+        <button type="submit" class="btn btn-success mt-3">Salvar</button>
+        <a href="{{ url_for('listar_vicentinos') }}" class="btn btn-secondary mt-3">Voltar</a>
+    </form>
+</div>
+{% endblock %}
