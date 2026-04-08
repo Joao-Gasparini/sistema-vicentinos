@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
@@ -14,13 +14,14 @@ from phonenumbers import NumberParseException
 from flask_wtf.csrf import CSRFProtect
 from functools import wraps
 
+
 import phonenumbers
 import time
 import re
 import os
 
 from config import Config
-from models import db, Vicentino
+from models import db, Vicentino, Conselho, Conferencia
 
 # =========================================================
 # INICIALIZAÇÃO DA APLICAÇÃO
@@ -338,29 +339,33 @@ def login():
     # GET: renderiza o formulário com o campo CPF vazio
     return render_template('login.html', cpf_input='')
 
+@app.route('/api/conferencias/<int:conselho_id>')
+@admin_required
+def api_conferencias(conselho_id):
+    conferencias = Conferencia.query.filter_by(conselho_id=conselho_id).order_by(Conferencia.nome).all()
+    return jsonify([{'id': c.id, 'nome': c.nome} for c in conferencias])
 
 @app.route('/admin/cadastrar_vicentino', methods=['GET', 'POST'])
 @admin_required
 def cadastrar_vicentino():
-    """
-    Rota exclusiva para administradores cadastrarem novos vicentinos.
-    Valida todos os campos, cria o usuário no banco e envia e-mail de confirmação se necessário.
-    Usuários sem e-mail são ativados diretamente; com e-mail ficam com status 'pendente'.
-    """
+    conselhos = Conselho.query.all()
+    conferencias = Conferencia.query.all()
+
     if request.method == 'POST':
         nome = request.form.get('nome', '').strip()
         sobrenome = request.form.get('sobrenome', '').strip()
         cpf_input = request.form.get('cpf', '').strip()
-        cpf = re.sub(r'\D', '', cpf_input)  # Remove a máscara do CPF
+        cpf = re.sub(r'\D', '', cpf_input)
         email_informado = request.form.get('email', '').strip()
         telefone = request.form.get('telefone', '').strip()
         senha = request.form.get('senha', '')
         confirmar_senha = request.form.get('confirmar_senha', '')
         foto = request.files.get('foto')
-        conselho = request.form.get('conselho', '').strip()
-        conferencia = request.form.get('conferencia', '').strip()
 
-        # Valida e normaliza o e-mail (campo opcional)
+        # ← agora vêm como IDs numéricos
+        conselho_id = request.form.get('conselho_id') or None
+        conferencia_id = request.form.get('conferencia_id') or None
+
         if email_informado == '':
             email = None
         else:
@@ -369,27 +374,22 @@ def cadastrar_vicentino():
                 flash('Informe um e-mail válido.', 'danger')
                 return redirect(url_for('cadastrar_vicentino'))
 
-        # Verifica campos obrigatórios
         if not nome or not sobrenome or not senha or not confirmar_senha:
             flash('Preencha todos os campos obrigatórios.', 'danger')
             return redirect(url_for('cadastrar_vicentino'))
 
-        # Valida que nome e sobrenome contêm apenas letras
         if not apenas_letras(nome) or not apenas_letras(sobrenome):
             flash('Nome e sobrenome devem conter apenas letras.', 'danger')
             return redirect(url_for('cadastrar_vicentino'))
 
-        # Valida o CPF se fornecido e verifica duplicidade
         if cpf:
             if not cpf_valido(cpf):
                 flash('CPF inválido.', 'danger')
                 return redirect(url_for('cadastrar_vicentino'))
-
             if Vicentino.query.filter_by(cpf=cpf).first():
                 flash('Já existe um usuário com esse CPF.', 'danger')
                 return redirect(url_for('cadastrar_vicentino'))
 
-        # Valida a senha
         if len(senha) < 6:
             flash('A senha deve ter pelo menos 6 caracteres.', 'danger')
             return redirect(url_for('cadastrar_vicentino'))
@@ -398,22 +398,18 @@ def cadastrar_vicentino():
             flash('As senhas não coincidem.', 'danger')
             return redirect(url_for('cadastrar_vicentino'))
 
-        # Verifica duplicidade de e-mail
         if email:
-            usuario_email = Vicentino.query.filter_by(email=email).first()
-            if usuario_email:
+            if Vicentino.query.filter_by(email=email).first():
                 flash('Já existe um vicentino cadastrado com este e-mail.', 'danger')
                 return redirect(url_for('cadastrar_vicentino'))
 
-        # Define o status inicial com base na presença de e-mail
         if email:
-            status = 'pendente'  # Aguarda confirmação por e-mail
+            status = 'pendente'
             email_confirmado = False
         else:
-            status = 'ativo'  # Sem e-mail: ativa diretamente
+            status = 'ativo'
             email_confirmado = True
 
-        # Cria e persiste o novo vicentino no banco
         novo_vicentino = Vicentino(
             nome=nome,
             sobrenome=sobrenome,
@@ -425,26 +421,29 @@ def cadastrar_vicentino():
             email_confirmado=email_confirmado,
             tipo='vicentino',
             foto=None,
-            conselho=conselho if conselho else None,
-            conferencia=conferencia if conferencia else None
+            conselho_id=conselho_id,       # ← FK
+            conferencia_id=conferencia_id  # ← FK
         )
 
         db.session.add(novo_vicentino)
         db.session.commit()
 
-        # Envia e-mail de confirmação se houver endereço cadastrado
         if email:
             try:
                 enviar_email_confirmacao(novo_vicentino)
                 flash('Vicentino cadastrado! E-mail de confirmação enviado.', 'success')
-            except Exception as e:
+            except Exception:
                 flash('Vicentino cadastrado, mas erro ao enviar e-mail.', 'warning')
         else:
             flash('Vicentino cadastrado com sucesso!', 'success')
 
         return redirect(url_for('dashboard'))
 
-    return render_template('cadastro_vicentino.html')
+    return render_template(
+        'cadastro_vicentino.html',
+        conselhos=conselhos,
+        conferencias=conferencias
+    )
 
 
 @app.route('/logout')
@@ -754,13 +753,6 @@ def dashboard():
 
     return render_template('dashboard.html')
 
-@app.route('/admin/vicentinos')
-@admin_required
-def listar_vicentinos():
-    vicentinos = Vicentino.query.all()
-    return render_template('admin_lista_vicentinos.html', vicentinos=vicentinos)
-
-
 @app.route('/perfil')
 def perfil():
     """Exibe a página de perfil do usuário logado."""
@@ -1002,22 +994,49 @@ def editar_perfil():
     )
 
 # =============================
+@app.route('/admin/vicentinos')
+@admin_required
+def listar_vicentinos():
+    conselho_id = request.args.get('conselho_id')
+    conferencia_id = request.args.get('conferencia_id')
+
+    query = Vicentino.query
+
+    if conselho_id:
+        query = query.filter_by(conselho_id=conselho_id)
+
+    if conferencia_id:
+        query = query.filter_by(conferencia_id=conferencia_id)
+
+    vicentinos = query.all()
+
+    conselhos = Conselho.query.all()
+    conferencias = Conferencia.query.all()
+
+    return render_template(
+        'admin_vicentinos.html',
+        vicentinos=vicentinos,
+        conselhos=conselhos,
+        conferencias=conferencias
+    )
+
 @app.route('/admin/editar_vicentino/<int:id>', methods=['GET', 'POST'])
 @admin_required
 def editar_vicentino_admin(id):
     usuario = Vicentino.query.get_or_404(id)
+
+    conselhos = Conselho.query.all()
+    conferencias = Conferencia.query.all()
 
     erros = {}
 
     if request.method == 'POST':
         nome = request.form.get('nome', '').strip()
         sobrenome = request.form.get('sobrenome', '').strip()
-        cpf_input = request.form.get('cpf', '').strip()
-        documento = limpar_numero(cpf_input)
-        # Documento (CPF ou CNPJ)
         telefone = request.form.get('telefone', '').strip()
-        conselho = request.form.get('conselho', '').strip()
-        conferencia = request.form.get('conferencia', '').strip()
+
+        conselho_id = request.form.get('conselho_id') or None
+        conferencia_id = request.form.get('conferencia_id') or None
 
         # =============================
         # VALIDAÇÕES
@@ -1028,31 +1047,6 @@ def editar_vicentino_admin(id):
 
         if not sobrenome or not apenas_letras(sobrenome):
             erros['sobrenome'] = 'Sobrenome inválido.'
-
-        # =============================
-        # VALIDAÇÃO DE CPF/CNPJ (FORA DO IF)
-        # =============================
-        if documento:
-            if not documento_valido(documento, usuario.tipo):
-                erros['cpf'] = 'Documento inválido.'
-            else:
-                # Verifica duplicidade
-                if usuario.tipo == 'admin':
-                    existente = Vicentino.query.filter_by(cnpj=documento).first()
-                else:
-                    existente = Vicentino.query.filter_by(cpf=documento).first()
-
-                if existente and existente.id != usuario.id:
-                    erros['cpf'] = 'Documento já cadastrado.'
-
-        # CPF (admin pode editar)
-        if documento:
-            if not documento_valido(documento, usuario.tipo):
-                erros['cpf'] = 'Documento inválido.'
-            else:
-                existente = Vicentino.query.filter_by(cpf=cpf).first()
-                if existente and existente.id != usuario.id:
-                    erros['cpf'] = 'CPF já cadastrado.'
 
         # Telefone
         telefone_formatado = None
@@ -1068,37 +1062,39 @@ def editar_vicentino_admin(id):
                 erros['telefone'] = 'Telefone inválido.'
 
         # =============================
-        # SE TIVER ERRO → VOLTA
+        # SE TIVER ERRO
         # =============================
         if erros:
             for msg in erros.values():
                 flash(msg, 'danger')
 
-            return render_template('admin_editar_vicentino.html', usuario=usuario)
+            return render_template(
+                'admin_editar_vicentino.html',
+                usuario=usuario,
+                conselhos=conselhos,
+                conferencias=conferencias
+            )
 
         # =============================
         # ATUALIZAÇÃO
         # =============================
         usuario.nome = nome
         usuario.sobrenome = sobrenome
-        if usuario.tipo == 'admin':
-            usuario.cnpj = documento if documento else None
-            usuario.cpf = None
-        else:
-            usuario.cpf = documento if documento else None
         usuario.telefone = telefone_formatado if telefone else None
-        usuario.conselho = conselho if conselho else None
-        usuario.conferencia = conferencia if conferencia else None
+        usuario.conselho_id = conselho_id
+        usuario.conferencia_id = conferencia_id
 
         db.session.commit()
 
         flash('Vicentino atualizado com sucesso!', 'success')
         return redirect(url_for('listar_vicentinos'))
 
-    # =============================
-    # GET
-    # =============================
-    return render_template('admin_editar_vicentino.html', usuario=usuario)
+    return render_template(
+        'admin_editar_vicentino.html',
+        usuario=usuario,
+        conselhos=conselhos,
+        conferencias=conferencias
+    )
 
 if __name__ == '__main__':
     with app.app_context():

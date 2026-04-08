@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<div class="container mt-4">
+
+    <h3>Vicentinos Cadastrados</h3>
+
+    <!-- FILTROS -->
+    <form method="GET" class="row mb-4">
+        <div class="col-md-4">
+            <select name="conselho_id" class="form-select select2">
+                <option value="">Todos Conselhos</option>
+                {% for c in conselhos %}
+                    <option value="{{ c.id }}">{{ c.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <select name="conferencia_id" class="form-select select2">
+                <option value="">Todas Conferências</option>
+                {% for c in conferencias %}
+                    <option value="{{ c.id }}">{{ c.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100">Filtrar</button>
+        </div>
+    </form>
+
+    <!-- CARDS -->
+    <div class="row">
+        {% for v in vicentinos %}
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3 mb-3">
+
+                <h5 class="fw-bold">{{ v.nome }}</h5>
+
+                <p class="mb-2">
+                    <strong>Conselho:</strong> {{ v.conselho.nome if v.conselho else '-' }}<br>
+                    <strong>Conferência:</strong> {{ v.conferencia.nome if v.conferencia else '-' }}
+                </p>
+
+                <a href="{{ url_for('editar_vicentino_admin', id=v.id) }}"
+                   class="btn btn-sm btn-warning">
+                   ✏️ Editar
+                </a>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('.select2').select2({
+        placeholder: "Buscar...",
+        allowClear: true,
+        width: '100%'
+    });
+});
+</script>
+
+{% endblock %}

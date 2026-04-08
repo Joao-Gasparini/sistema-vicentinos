@@ -4,6 +4,31 @@ from datetime import datetime
 db = SQLAlchemy()
 
 
+# =========================
+# TABELAS AUXILIARES
+# =========================
+
+class Conselho(db.Model):
+    __tablename__ = 'conselhos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False, unique=True)
+
+
+class Conferencia(db.Model):
+    __tablename__ = 'conferencias'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    conselho_id = db.Column(db.Integer, db.ForeignKey('conselhos.id'), nullable=True)
+
+    conselho = db.relationship('Conselho', backref='conferencias')
+
+
+# =========================
+# TABELA PRINCIPAL
+# =========================
+
 class Vicentino(db.Model):
     __tablename__ = 'vicentinos'
 
@@ -12,21 +37,38 @@ class Vicentino(db.Model):
     sobrenome = db.Column(db.String(120), nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=True)
     cnpj = db.Column(db.String(14), unique=True, nullable=True)
-    tipo = db.Column(db.String(20), nullable=False)  # 'admin' ou 'vicentino'
+
+    tipo = db.Column(db.String(20), nullable=False, default='vicentino')
+
     email = db.Column(db.String(150), unique=True, nullable=True)
     telefone = db.Column(db.String(25))
     senha_hash = db.Column(db.String(255), nullable=False)
-    tipo = db.Column(db.String(20), nullable=False, default='vicentino')
+
     status = db.Column(db.String(10), default='pendente')
     email_confirmado = db.Column(db.Boolean, default=False)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
     data_confirmacao = db.Column(db.DateTime, nullable=True)
     foto = db.Column(db.String(255), nullable=True)
+
+    # 🔴 CAMPOS ANTIGOS (manter por enquanto)
     conselho = db.Column(db.String(150), nullable=True)
     conferencia = db.Column(db.String(150), nullable=True)
 
+    # 🟢 NOVOS RELACIONAMENTOS
+    conselho_id = db.Column(db.Integer, db.ForeignKey('conselhos.id'))
+    conferencia_id = db.Column(db.Integer, db.ForeignKey('conferencias.id'))
+
+    conselho_rel = db.relationship('Conselho')
+    conferencia_rel = db.relationship('Conferencia')
+
+    # RELACIONAMENTOS
     familias = db.relationship('Familia', backref='vicentino', lazy=True)
     atendimentos = db.relationship('Atendimento', backref='vicentino', lazy=True)
+
+
+# =========================
+# FAMÍLIAS
+# =========================
 
 class Familia(db.Model):
     __tablename__ = 'familias'
@@ -52,6 +94,10 @@ class Familia(db.Model):
 
     atendimentos = db.relationship('Atendimento', backref='familia', lazy=True)
 
+
+# =========================
+# ATENDIMENTOS
+# =========================
 
 class Atendimento(db.Model):
     __tablename__ = 'atendimentos'

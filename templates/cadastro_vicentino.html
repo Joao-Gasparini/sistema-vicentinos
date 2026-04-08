@@ -91,26 +91,23 @@
                     </div>
 
                     <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Conselho</label>
-                        <input
-                            type="text"
-                            name="conselho"
-                            class="form-control"
-                            maxlength="150"
-                        >
-                    </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Conselho</label>
+                            <select name="conselho_id" class="form-select select2" id="conselho_id">
+                                <option value="">Selecione um conselho...</option>
+                                {% for c in conselhos %}
+                                    <option value="{{ c.id }}">{{ c.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Conferência</label>
-                        <input
-                            type="text"
-                            name="conferencia"
-                            class="form-control"
-                            maxlength="150"
-                        >
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Conferência</label>
+                            <select name="conferencia_id" class="form-select select2" id="conferencia_id">
+                                <option value="">Selecione um conselho primeiro...</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
                     <div class="mb-3">
                         <label class="form-label">E-mail*(opcional)</label>
@@ -164,6 +161,53 @@
         </div>
     </div>
 </div>
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+
+    $('#conselho_id').select2({
+        placeholder: "Digite para buscar...",
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#conferencia_id').select2({
+        placeholder: "Selecione um conselho primeiro...",
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#conselho_id').on('change.select2', function () {
+        const conselhoId = $(this).val();
+        const $conferencia = $('#conferencia_id');
+
+        // Limpa e desabilita enquanto carrega
+        $conferencia.empty().append('<option value="">Carregando...</option>').trigger('change');
+
+        if (!conselhoId) {
+            $conferencia.empty().append('<option value="">Selecione um conselho primeiro...</option>').trigger('change');
+            return;
+        }
+
+        // Busca as conferências do conselho selecionado
+        $.getJSON(`/api/conferencias/${conselhoId}`, function (data) {
+            $conferencia.empty().append('<option value="">Selecione uma conferência...</option>');
+
+            if (data.length === 0) {
+                $conferencia.append('<option value="" disabled>Nenhuma conferência encontrada</option>');
+            } else {
+                data.forEach(function (c) {
+                    $conferencia.append(`<option value="${c.id}">${c.nome}</option>`);
+                });
+            }
+
+            $conferencia.trigger('change'); // atualiza o Select2
+        });
+    });
+
+});
+</script>
 
 <script>
     const senha = document.getElementById('senha');
@@ -388,4 +432,5 @@ if (cpf) {
     });
 }
 </script>
+{% endblock %}
 {% endblock %}

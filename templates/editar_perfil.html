@@ -71,24 +71,46 @@
 
             <div class="mb-3">
                 <label class="form-label">Conselho</label>
-                <input type="text" name="conselho" class="form-control
-                       {% if usuario.tipo != 'admin' %}bg-light{% endif %}"
-                       value="{{ usuario.conselho or '' }}"
-                       {% if usuario.tipo != 'admin' %}readonly{% endif %}>
-                <small class="text-muted">
-                    Se o Conselho estiver incorreto, solicite a correção ao responsável pelo sistema.
-                </small>
+                {% if usuario.tipo == 'admin' %}
+                    <select name="conselho_id" class="form-select select2" id="conselho_id">
+                        <option value="">Selecione um conselho...</option>
+                        {% for c in conselhos %}
+                            <option value="{{ c.id }}"
+                                {% if usuario.conselho_id == c.id %}selected{% endif %}>
+                                {{ c.nome }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                {% else %}
+                    <input type="text" class="form-control bg-light"
+                           value="{{ usuario.conselho_rel.nome if usuario.conselho_rel else 'Não informado' }}"
+                           readonly>
+                    <small class="text-muted">
+                        Se o Conselho estiver incorreto, solicite a correção ao responsável pelo sistema.
+                    </small>
+                {% endif %}
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Conferência</label>
-                <input type="text" name="conferencia" class="form-control
-                       {% if usuario.tipo != 'admin' %}bg-light{% endif %}"
-                       value="{{ usuario.conferencia or '' }}"
-                       {% if usuario.tipo != 'admin' %}readonly{% endif %}>
-                <small class="text-muted">
-                    Se a Conferência estiver incorreta, solicite a correção ao responsável pelo sistema.
-                </small>
+                {% if usuario.tipo == 'admin' %}
+                    <select name="conferencia_id" class="form-select select2" id="conferencia_id">
+                        <option value="">Selecione uma conferência...</option>
+                        {% for c in conferencias %}
+                            <option value="{{ c.id }}"
+                                {% if usuario.conferencia_id == c.id %}selected{% endif %}>
+                                {{ c.nome }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                {% else %}
+                    <input type="text" class="form-control bg-light"
+                           value="{{ usuario.conferencia_rel.nome if usuario.conferencia_rel else 'Não informado' }}"
+                           readonly>
+                    <small class="text-muted">
+                        Se a Conferência estiver incorreta, solicite a correção ao responsável pelo sistema.
+                    </small>
+                {% endif %}
             </div>
 
             <!-- BOTÃO ALTERAR SENHA -->
