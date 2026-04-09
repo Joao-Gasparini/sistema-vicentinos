@@ -19,7 +19,6 @@
                             id="cpf"
                             class="form-control"
                             required
-                            placeholder="000.000.000-00"
                             inputmode="numeric"
                             autocomplete="off"
                             value="{{ cpf_input }}"
@@ -87,35 +86,42 @@
 </div>
 
 <!-- MÁSCARA DE CPF -->
+{% block scripts %}
 <script>
     const cpfInput = document.getElementById('cpf');
 
-    function aplicarMascaraCPF(valor) {
+    function aplicarMascara(valor) {
         valor = valor.replace(/\D/g, '');
 
-        if (valor.length > 11) {
-            valor = valor.slice(0, 11);
+        if (valor.length <= 11) {
+            // Máscara CPF: 000.000.000-00
+            valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+            valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+            valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        } else {
+            // Máscara CNPJ: 00.000.000/0000-00
+            valor = valor.slice(0, 14);
+            valor = valor.replace(/(\d{2})(\d)/, '$1.$2');
+            valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+            valor = valor.replace(/(\d{3})(\d)/, '$1/$2');
+            valor = valor.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
         }
-
-        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
-        valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
-        valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 
         return valor;
     }
 
     if (cpfInput) {
         cpfInput.addEventListener('input', function () {
-            this.value = aplicarMascaraCPF(this.value);
+            this.value = aplicarMascara(this.value);
         });
 
         cpfInput.addEventListener('keypress', function (e) {
-            const char = String.fromCharCode(e.which);
-            if (!/[0-9]/.test(char)) {
+            if (!/[0-9]/.test(String.fromCharCode(e.which))) {
                 e.preventDefault();
             }
         });
     }
 </script>
+{% endblock %}
 
 {% endblock %}

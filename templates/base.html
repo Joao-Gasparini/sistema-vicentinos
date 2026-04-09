@@ -11,8 +11,11 @@
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Font Awesome (ícones) -->
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 </head>
 
 <body class="bg-light d-flex flex-column min-vh-100">
@@ -34,30 +37,28 @@
 
                     {% if session.get('tipo') == 'admin' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('cadastrar_vicentino') }}">
-                                Cadastrar Vicentino
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-house me-1"></i> Início
                             </a>
                         </li>
-                        {% endif %}
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('cadastrar_vicentino') }}">
+                                <i class="fas fa-plus me-1"></i> Cadastrar Vicentino
+                            </a>
+                        </li>
+                    {% endif %}
 
                     {% if session.get('vicentino_id') %}
 
-                        <!-- DASHBOARD -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('dashboard') }}">
-                                Dashboard
-                            </a>
-                        </li>
-
-                    {% if session.get('tipo') == 'admin' %}
+                        {% if session.get('tipo') == 'admin' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('listar_vicentinos') }}">
-                                👥 Vicentinos
+                                <i class="fas fa-users me-1"></i> Vicentinos
                             </a>
                         </li>
                         {% endif %}
 
-                        <!-- PERFIL DROPDOWN -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
 
@@ -74,44 +75,35 @@
                             </a>
 
                             <ul class="dropdown-menu dropdown-menu-end">
-
                                 <li>
                                     <a class="dropdown-item" href="{{ url_for('perfil') }}">
                                         <i class="fas fa-user me-2"></i> Meu Perfil
                                     </a>
                                 </li>
-
                                 <li>
                                     <a class="dropdown-item" href="{{ url_for('editar_perfil') }}">
                                         <i class="fas fa-edit me-2"></i> Editar Perfil
                                     </a>
                                 </li>
-
                                 <li><hr class="dropdown-divider"></li>
-
                                 <li>
                                     <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
                                         <i class="fas fa-sign-out-alt me-2"></i> Sair
                                     </a>
                                 </li>
-
                             </ul>
                         </li>
 
-               {% else %}
-
-                    <!-- NÃO LOGADO -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">
-                            Login
-                        </a>
-                    </li>
-
-                {% endif %}
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                Login
+                            </a>
+                        </li>
+                    {% endif %}
 
                 </ul>
             </div>
-
         </div>
     </nav>
 
@@ -129,29 +121,37 @@
             {% endif %}
         {% endwith %}
 
-              <!-- jQuery -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+        {% block conteudo %}{% endblock %}
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
- {% block conteudo %}{% endblock %}
     </main>
 
-
-
-
-
-<!-- RODAPÉ -->
+    <!-- RODAPÉ -->
     <footer class="bg-white border-top py-3 mt-auto">
         <div class="container text-center text-muted">
             <small>Famílias Assistidas SSVP &copy; 2026</small>
         </div>
     </footer>
+
+    <!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Auto-fechar alertas após 3 segundos -->
+    <script>
+        setTimeout(function () {
+            document.querySelectorAll('.alert').forEach(function (alert) {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 3000);
+    </script>
+
+    {% block scripts %}{% endblock %}
 
 </body>
 </html>

@@ -296,37 +296,40 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """
-    Exibe e processa o formulário de login.
-    Valida o CPF e a senha, e inicia a sessão do usuário autenticado.
-    """
-    cpf_input = ''  # Valor padrão para manter o campo preenchido em caso de erro
+    cpf_input = ''
 
     if request.method == 'POST':
         cpf_input = request.form.get('cpf', '').strip()
         senha = request.form.get('senha', '')
 
-        # Remove a máscara do CPF (pontos e traço)
-        cpf = re.sub(r'\D', '', cpf_input)
+        documento = re.sub(r'\D', '', cpf_input)
 
-        # Validação básica dos campos
-        if not cpf or not senha:
-            flash('Informe CPF e senha.', 'danger')
+        if not documento or not senha:
+            flash('Informe o documento e a senha.', 'danger')
             return render_template('login.html', cpf_input=cpf_input)
 
-        # Validação do formato do CPF
-        if not cpf_valido(cpf):
-            flash('CPF inválido.', 'danger')
-            return render_template('login.html', cpf_input=cpf_input)
+        # Decide se é CPF (11 dígitos) ou CNPJ (14 dígitos)
+        if len(documento) == 11:
+            if not cpf_valido(documento):
+                flash('CPF inválido.', 'danger')
+                return render_template('login.html', cpf_input=cpf_input)
+            vicentino = Vicentino.query.filter_by(cpf=documento).first()
 
-        # Busca o usuário no banco e verifica a senha
-        vicentino = Vicentino.query.filter_by(cpf=cpf).first()
+        elif len(documento) == 14:
+            vicentino = Vicentino.query.filter_by(cnpj=documento).first()
+
+        else:
+            flash('Documento inválido. Informe um CPF ou CNPJ válido.', 'danger')
+            return render_template('login.html', cpf_input=cpf_input)
 
         if not vicentino or not check_password_hash(vicentino.senha_hash, senha):
-            flash('CPF ou senha incorretos.', 'danger')
+            flash('Documento ou senha incorretos.', 'danger')
             return render_template('login.html', cpf_input=cpf_input)
 
-        # Login bem-sucedido: armazena dados na sessão
+        if vicentino.status == 'pendente':
+            flash('Conta pendente de confirmação de e-mail.', 'warning')
+            return render_template('login.html', cpf_input=cpf_input, email_pendente=vicentino.email, tempo_restante=0)
+
         session['vicentino_id'] = vicentino.id
         session['vicentino_nome'] = vicentino.nome
         session['vicentino_email'] = vicentino.email
@@ -336,8 +339,8 @@ def login():
         flash('Login realizado com sucesso.', 'success')
         return redirect(url_for('dashboard'))
 
-    # GET: renderiza o formulário com o campo CPF vazio
     return render_template('login.html', cpf_input='')
+
 
 @app.route('/api/conferencias/<int:conselho_id>')
 @admin_required
