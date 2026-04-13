@@ -3,62 +3,221 @@
 {% block conteudo %}
 <div class="container mt-4">
 
-    <h3>Vicentinos Cadastrados</h3>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">Vicentinos Cadastrados</h3>
+        <a href="{{ url_for('cadastrar_vicentino') }}" class="btn text-white"
+           style="background-color: #0064b6; border-color: #0064b6;">
+            <i class="fas fa-plus me-1"></i> Novo Vicentino
+        </a>
+    </div>
 
     <!-- FILTROS -->
-    <form method="GET" class="row mb-4">
-        <div class="col-md-4">
-            <select name="conselho_id" class="form-select select2">
-                <option value="">Todos Conselhos</option>
-                {% for c in conselhos %}
-                    <option value="{{ c.id }}">{{ c.nome }}</option>
-                {% endfor %}
-            </select>
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: calc(1.5em + 0.75rem + 2px);
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 1.5;
+            padding-left: 0;
+            color: #212529;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: calc(1.5em + 0.75rem + 2px);
+        }
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #6c757d;
+        }
+    </style>
+
+    <form method="GET" class="card shadow-sm p-3 mb-4">
+        <!-- Linha 1: campos de filtro -->
+        <div class="row g-2 mb-2">
+            <div class="col-md-3">
+                <label class="form-label mb-1 text-muted small">Nome</label>
+                <input type="text" name="nome" class="form-control"
+                       placeholder="Buscar por nome..."
+                       value="{{ request.args.get('nome', '') }}">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label mb-1 text-muted small">Conselho Particular</label>
+                <select name="conselho_id" class="form-select select2">
+                    <option value="">Todos os Conselhos</option>
+                    {% for c in conselhos %}
+                        <option value="{{ c.id }}"
+                            {% if request.args.get('conselho_id') == c.id|string %}selected{% endif %}>
+                            {{ c.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label mb-1 text-muted small">Conferência</label>
+                <select name="conferencia_id" class="form-select select2">
+                    <option value="">Todas as Conferências</option>
+                    {% for c in conferencias %}
+                        <option value="{{ c.id }}"
+                            {% if request.args.get('conferencia_id') == c.id|string %}selected{% endif %}>
+                            {{ c.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label mb-1 text-muted small">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="ativo"   {% if request.args.get('status') == 'ativo'   %}selected{% endif %}>Ativos</option>
+                    <option value="inativo" {% if request.args.get('status') == 'inativo' %}selected{% endif %}>Inativos</option>
+                </select>
+            </div>
         </div>
 
-        <div class="col-md-4">
-            <select name="conferencia_id" class="form-select select2">
-                <option value="">Todas Conferências</option>
-                {% for c in conferencias %}
-                    <option value="{{ c.id }}">{{ c.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="col-md-4">
-            <button class="btn btn-primary w-100">Filtrar</button>
+        <!-- Linha 2: botões alinhados à direita -->
+        <div class="row g-2 justify-content-end">
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i> Filtrar
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('listar_vicentinos') }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-times me-1"></i> Limpar
+                </a>
+            </div>
         </div>
     </form>
 
-    <!-- CARDS -->
-    <div class="row">
-        {% for v in vicentinos %}
-        <div class="col-md-4">
-            <div class="card shadow-sm p-3 mb-3">
+    <!-- CONTAGEM -->
+    <p class="text-muted small mb-3">
+        {{ ativos|length + inativos|length }} vicentino(s) encontrado(s)
+        {% if ativos %}— {{ ativos|length }} ativo(s){% endif %}
+        {% if inativos %}— {{ inativos|length }} inativo(s){% endif %}
+    </p>
 
-                <h5 class="fw-bold">{{ v.nome }}</h5>
+    <!-- MACRO: card do vicentino -->
+    {% macro card_vicentino(v, inativo=false) %}
+    <div class="card shadow-sm mb-3 {% if inativo %}opacity-50{% endif %}">
+        <div class="card-body d-flex align-items-center gap-4 py-3">
 
-                <p class="mb-2">
-                    <strong>Conselho:</strong> {{ v.conselho.nome if v.conselho else '-' }}<br>
-                    <strong>Conferência:</strong> {{ v.conferencia.nome if v.conferencia else '-' }}
-                </p>
+            <!-- FOTO -->
+            <div class="flex-shrink-0">
+                {% if v.foto %}
+                    <img src="{{ url_for('static', filename='fotos_perfil/' ~ v.foto) }}"
+                         class="rounded-circle border border-2"
+                         style="width: 75px; height: 75px; object-fit: cover;"
+                         alt="Foto">
+                {% else %}
+                    <div class="rounded-circle border bg-light text-secondary"
+                         style="width: 75px; height: 75px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-user fa-2x"></i>
+                    </div>
+                {% endif %}
+            </div>
 
+            <!-- DADOS -->
+            <div class="flex-grow-1">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <h5 class="mb-0 fw-bold">{{ v.nome }} {{ v.sobrenome }}</h5>
+                    {% if v.status == 'ativo' %}
+                        <span class="badge bg-success">Ativo</span>
+                    {% elif v.status == 'pendente' %}
+                        <span class="badge bg-warning text-dark">Pendente</span>
+                    {% elif v.status == 'inativo' %}
+                        <span class="badge bg-secondary">Inativo</span>
+                    {% endif %}
+                </div>
+
+                <div class="row row-cols-2 row-cols-md-4 g-2 mt-1">
+                    <div class="col">
+                        <small class="text-muted d-block">E-mail</small>
+                        <span class="small">{{ v.email or '-' }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">CPF / CNPJ</small>
+                        <span class="small">{{ v.cpf or v.cnpj or '-' }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Telefone</small>
+                        <span class="small">{{ v.telefone or '-' }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Conselho Particular</small>
+                        <span class="small">{{ v.conselho_rel.nome if v.conselho_rel else '-' }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Conferência</small>
+                        <span class="small">{{ v.conferencia_rel.nome if v.conferencia_rel else '-' }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Cadastrado em</small>
+                        <span class="small">{{ v.data_cadastro.strftime('%d/%m/%Y') if v.data_cadastro else '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AÇÕES -->
+            <div class="flex-shrink-0 d-flex flex-column gap-2">
                 <a href="{{ url_for('editar_vicentino_admin', id=v.id) }}"
-                   class="btn btn-sm btn-warning">
-                   ✏️ Editar
+                   class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-edit me-1"></i> Editar
                 </a>
 
+                <form method="POST"
+                      action="{{ url_for('toggle_status_vicentino', vicentino_id=v.id) }}"
+                      onsubmit="return confirm('{% if v.status == 'inativo' %}Reativar {{ v.nome }}?{% else %}Inativar {{ v.nome }}?{% endif %}')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% if v.status == 'inativo' %}
+                        <button type="submit" class="btn btn-sm btn-outline-success w-100">
+                            <i class="fas fa-user-check me-1"></i> Reativar
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                            <i class="fas fa-user-slash me-1"></i> Inativar
+                        </button>
+                    {% endif %}
+                </form>
             </div>
+
         </div>
-        {% endfor %}
     </div>
+    {% endmacro %}
+
+    <!-- ATIVOS -->
+    {% if ativos %}
+        {% for v in ativos %}
+            {{ card_vicentino(v) }}
+        {% endfor %}
+    {% elif not inativos %}
+        <div class="text-center text-muted py-5">
+            <i class="fa-solid fa-users-slash fa-3x mb-3"></i>
+            <p class="mb-0">Nenhum vicentino encontrado.</p>
+        </div>
+    {% endif %}
+
+    <!-- INATIVOS -->
+    {% if inativos %}
+        <div class="d-flex align-items-center gap-3 my-4">
+            <hr class="flex-grow-1">
+            <span class="text-muted fw-semibold small text-uppercase">
+                <i class="fas fa-user-slash me-1"></i> Inativos ({{ inativos|length }})
+            </span>
+            <hr class="flex-grow-1">
+        </div>
+
+        {% for v in inativos %}
+            {{ card_vicentino(v, inativo=true) }}
+        {% endfor %}
+    {% endif %}
 
 </div>
 
-<!-- Select2 -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
-
+{% block scripts %}
 <script>
 $(document).ready(function() {
     $('.select2').select2({
@@ -68,5 +227,6 @@ $(document).ready(function() {
     });
 });
 </script>
+{% endblock %}
 
 {% endblock %}

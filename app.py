@@ -283,6 +283,31 @@ Se você não solicitou essa alteração, ignore este e-mail.
 
 
 # =========================================================
+# RATE LIMITING DE LOGIN (in-memory, por IP)
+# =========================================================
+
+_login_tentativas = {}       # { ip: [timestamps de tentativas falhas] }
+_LOGIN_MAX_TENTATIVAS = 5    # Máximo de falhas permitidas
+_LOGIN_JANELA_SEGUNDOS = 300 # Janela de 5 minutos
+
+
+def _login_bloqueado(ip):
+    """Retorna True se o IP excedeu o limite de tentativas."""
+    agora = time.time()
+    tentativas = [t for t in _login_tentativas.get(ip, []) if agora - t < _LOGIN_JANELA_SEGUNDOS]
+    _login_tentativas[ip] = tentativas
+    return len(tentativas) >= _LOGIN_MAX_TENTATIVAS
+
+
+def _registrar_falha_login(ip):
+    """Registra uma tentativa de login mal-sucedida para o IP."""
+    agora = time.time()
+    tentativas = [t for t in _login_tentativas.get(ip, []) if agora - t < _LOGIN_JANELA_SEGUNDOS]
+    tentativas.append(agora)
+    _login_tentativas[ip] = tentativas
+
+
+# =========================================================
 # ROTAS PÚBLICAS / INICIAIS
 # =========================================================
 
@@ -299,6 +324,11 @@ def login():
     cpf_input = ''
 
     if request.method == 'POST':
+        ip = request.remote_addr
+        if _login_bloqueado(ip):
+            flash('Muitas tentativas de login. Aguarde 5 minutos e tente novamente.', 'danger')
+            return render_template('login.html', cpf_input='')
+
         cpf_input = request.form.get('cpf', '').strip()
         senha = request.form.get('senha', '')
 
@@ -323,6 +353,7 @@ def login():
             return render_template('login.html', cpf_input=cpf_input)
 
         if not vicentino or not check_password_hash(vicentino.senha_hash, senha):
+            _registrar_falha_login(ip)
             flash('Documento ou senha incorretos.', 'danger')
             return render_template('login.html', cpf_input=cpf_input)
 
@@ -345,7 +376,7 @@ def login():
 @app.route('/api/conferencias/<int:conselho_id>')
 @admin_required
 def api_conferencias(conselho_id):
-    conferencias = Conferencia.query.filter_by(conselho_id=conselho_id).order_by(Conferencia.nome).all()
+    conferencias = Conferencia.query.filter_by(conselho_id=conselho_id).order_by(Conferencia.nome).distinct().all()
     return jsonify([{'id': c.id, 'nome': c.nome} for c in conferencias])
 
 @app.route('/admin/cadastrar_vicentino', methods=['GET', 'POST'])
@@ -578,6 +609,10 @@ def esqueci_senha():
                 flash('As senhas não coincidem.', 'danger')
                 return redirect(url_for('esqueci_senha'))
 
+            if len(nova_senha) < 6:
+                flash('A senha deve ter pelo menos 6 caracteres.', 'danger')
+                return redirect(url_for('esqueci_senha'))
+
             vicentino.senha_hash = generate_password_hash(nova_senha)
             db.session.commit()
             flash('Senha alterada com sucesso!', 'success')
@@ -721,6 +756,10 @@ def redefinir_senha(token):
             flash('Preencha os dois campos de senha.', 'danger')
             return redirect(url_for('redefinir_senha', token=token))
 
+        if len(senha) < 6:
+            flash('A senha deve ter pelo menos 6 caracteres.', 'danger')
+            return redirect(url_for('redefinir_senha', token=token))
+
         if senha != confirmar_senha:
             flash('As senhas não coincidem.', 'danger')
             return redirect(url_for('redefinir_senha', token=token))
@@ -763,6 +802,11 @@ def perfil():
         return redirect(url_for('login'))
 
     usuario = Vicentino.query.get(session['vicentino_id'])
+    if not usuario:
+        session.clear()
+        flash('Sessão inválida. Faça login novamente.', 'warning')
+        return redirect(url_for('login'))
+
     return render_template('perfil.html', usuario=usuario)
 
 
@@ -1000,28 +1044,72 @@ def editar_perfil():
 @app.route('/admin/vicentinos')
 @admin_required
 def listar_vicentinos():
-    conselho_id = request.args.get('conselho_id')
-    conferencia_id = request.args.get('conferencia_id')
+    conselho_id_raw = request.args.get('conselho_id')
+    conferencia_id_raw = request.args.get('conferencia_id')
+    nome_busca = request.args.get('nome', '').strip()
+    status_filtro = request.args.get('status', '')
 
     query = Vicentino.query
 
-    if conselho_id:
-        query = query.filter_by(conselho_id=conselho_id)
+    if nome_busca:
+        termo = f'%{nome_busca}%'
+        query = query.filter(
+            db.or_(
+                Vicentino.nome.ilike(termo),
+                Vicentino.sobrenome.ilike(termo)
+            )
+        )
 
-    if conferencia_id:
-        query = query.filter_by(conferencia_id=conferencia_id)
+    if conselho_id_raw:
+        try:
+            query = query.filter_by(conselho_id=int(conselho_id_raw))
+        except (ValueError, TypeError):
+            flash('Filtro de conselho inválido.', 'danger')
+            return redirect(url_for('listar_vicentinos'))
 
-    vicentinos = query.all()
+    if conferencia_id_raw:
+        try:
+            query = query.filter_by(conferencia_id=int(conferencia_id_raw))
+        except (ValueError, TypeError):
+            flash('Filtro de conferência inválido.', 'danger')
+            return redirect(url_for('listar_vicentinos'))
+
+    todos = query.all()
+
+    if status_filtro == 'ativo':
+        ativos = [v for v in todos if v.status != 'inativo']
+        inativos = []
+    elif status_filtro == 'inativo':
+        ativos = []
+        inativos = [v for v in todos if v.status == 'inativo']
+    else:
+        ativos = [v for v in todos if v.status != 'inativo']
+        inativos = [v for v in todos if v.status == 'inativo']
 
     conselhos = Conselho.query.all()
     conferencias = Conferencia.query.all()
 
     return render_template(
         'admin_vicentinos.html',
-        vicentinos=vicentinos,
+        ativos=ativos,
+        inativos=inativos,
         conselhos=conselhos,
         conferencias=conferencias
     )
+
+@app.route('/admin/vicentino/<int:vicentino_id>/toggle_status', methods=['POST'])
+@admin_required
+def toggle_status_vicentino(vicentino_id):
+    vicentino = Vicentino.query.get_or_404(vicentino_id)
+    if vicentino.status == 'inativo':
+        vicentino.status = 'ativo'
+        flash(f'{vicentino.nome} foi reativado com sucesso.', 'success')
+    else:
+        vicentino.status = 'inativo'
+        flash(f'{vicentino.nome} foi inativado.', 'warning')
+    db.session.commit()
+    return redirect(request.referrer or url_for('listar_vicentinos'))
+
 
 @app.route('/admin/editar_vicentino/<int:id>', methods=['GET', 'POST'])
 @admin_required

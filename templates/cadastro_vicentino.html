@@ -4,7 +4,7 @@
 <div class="row justify-content-center">
     <div class="col-md-7">
         <div class="card shadow">
-            <div class="card-header bg-success text-white">
+            <div class="card-header text-white" style="background-color: #0064b6;">
                 <h4 class="mb-0">Cadastro de Vicentino</h4>
             </div>
             <div class="card-body">
@@ -16,11 +16,18 @@
                     <div class="text-center mb-4">
                         <label class="form-label d-block">Foto de Perfil</label>
 
+                        <div id="avatar_placeholder"
+                             class="rounded-circle mb-2 border bg-light text-secondary"
+                             style="width: 120px; height: 120px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;"
+                             onclick="document.getElementById('input_foto').click()">
+                            <i class="fa-solid fa-user fa-3x"></i>
+                        </div>
                         <img id="preview_foto"
-                             src="https://via.placeholder.com/120"
+                             src=""
                              class="rounded-circle mb-2 border"
-                             style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;"
-                             alt="Prévia da foto">
+                             style="width: 120px; height: 120px; object-fit: cover; cursor: pointer; display: none;"
+                             alt="Prévia da foto"
+                             onclick="document.getElementById('input_foto').click()">
 
                         <input type="file" name="foto" id="input_foto" accept="image/*" style="display: none;">
 
@@ -92,7 +99,7 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Conselho</label>
+                            <label class="form-label">Conselho Particular</label>
                             <select name="conselho_id" class="form-select select2" id="conselho_id">
                                 <option value="">Selecione um conselho...</option>
                                 {% for c in conselhos %}
@@ -153,7 +160,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100">Cadastrar</button>
+                    <button type="submit" class="btn w-100 text-white" style="background-color: #0064b6; border-color: #0064b6;">Cadastrar</button>
                 </form>
 
                 <hr>
@@ -163,6 +170,25 @@
 </div>
 
 {% block scripts %}
+<style>
+    .select2-container--default .select2-selection--single {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 1.5;
+        padding-left: 0;
+        color: #212529;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: calc(1.5em + 0.75rem + 2px);
+    }
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6c757d;
+    }
+</style>
 <script>
 $(document).ready(function () {
 
@@ -178,20 +204,23 @@ $(document).ready(function () {
         width: '100%'
     });
 
+    let xhrConferencias = null;
+
     $('#conselho_id').on('change.select2', function () {
+        if (xhrConferencias) { xhrConferencias.abort(); xhrConferencias = null; }
+
         const conselhoId = $(this).val();
         const $conferencia = $('#conferencia_id');
-
-        // Limpa e desabilita enquanto carrega
-        $conferencia.empty().append('<option value="">Carregando...</option>').trigger('change');
 
         if (!conselhoId) {
             $conferencia.empty().append('<option value="">Selecione um conselho primeiro...</option>').trigger('change');
             return;
         }
 
-        // Busca as conferências do conselho selecionado
-        $.getJSON(`/api/conferencias/${conselhoId}`, function (data) {
+        $conferencia.empty().append('<option value="">Carregando...</option>').trigger('change');
+
+        xhrConferencias = $.getJSON(`/api/conferencias/${conselhoId}`, function (data) {
+            xhrConferencias = null;
             $conferencia.empty().append('<option value="">Selecione uma conferência...</option>');
 
             if (data.length === 0) {
@@ -202,7 +231,7 @@ $(document).ready(function () {
                 });
             }
 
-            $conferencia.trigger('change'); // atualiza o Select2
+            $conferencia.trigger('change');
         });
     });
 
@@ -365,38 +394,28 @@ $(document).ready(function () {
         }
     });
 
-    document.getElementById('input_foto').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('preview_foto').src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-
     // =========================
     // FOTO PREVIEW + VALIDAÇÃO
     // =========================
     document.getElementById('input_foto').addEventListener('change', function(event) {
         const file = event.target.files[0];
+        const img = document.getElementById('preview_foto');
+        const placeholder = document.getElementById('avatar_placeholder');
 
         if (file) {
             const tamanhoMaximo = 5 * 1024 * 1024; // 5MB
 
-            // 🚨 valida tamanho
             if (file.size > tamanhoMaximo) {
                 alert('A imagem é muito grande! Máximo permitido: 5MB.');
-                this.value = ''; // limpa input
+                this.value = '';
                 return;
             }
 
-            // ✅ preview
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('preview_foto').src = e.target.result;
+                img.src = e.target.result;
+                img.style.display = 'inline-block';
+                placeholder.style.display = 'none';
             };
             reader.readAsDataURL(file);
         }

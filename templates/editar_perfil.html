@@ -11,16 +11,29 @@
 
             <!-- FOTO -->
             <div class="text-center mb-4">
-                <div class="position-relative d-inline-block">
-                    <img id="preview_foto"
-                         src="{{ url_for('static', filename='fotos_perfil/' ~ (usuario.foto if usuario.foto else '')) if usuario.foto else 'https://via.placeholder.com/150' }}"
-                         class="rounded-circle border"
-                         style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;">
+                <div class="position-relative d-inline-block"
+                     onclick="document.getElementById('input_foto').click()"
+                     style="cursor: pointer;">
+                    {% if usuario.foto %}
+                        <img id="preview_foto"
+                             src="{{ url_for('static', filename='fotos_perfil/' ~ usuario.foto) }}"
+                             class="rounded-circle border"
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div id="avatar_placeholder"
+                             class="rounded-circle border bg-light text-secondary"
+                             style="width: 150px; height: 150px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user fa-4x"></i>
+                        </div>
+                        <img id="preview_foto"
+                             src=""
+                             class="rounded-circle border"
+                             style="width: 150px; height: 150px; object-fit: cover; display: none;">
+                    {% endif %}
                     <input type="file" name="foto" id="input_foto" accept="image/*" style="display: none;">
-                    <div onclick="document.getElementById('input_foto').click()"
-                         class="position-absolute top-50 start-50 translate-middle text-white"
-                         style="cursor: pointer;">
-                        <i class="fas fa-camera fa-2x"></i>
+                    <div class="position-absolute top-50 start-50 translate-middle text-white"
+                         style="pointer-events: none;">
+                        <i class="fas fa-camera fa-2x" style="opacity: 0.85; text-shadow: 0 1px 3px rgba(0,0,0,0.5);"></i>
                     </div>
                 </div>
                 <small class="text-muted d-block mt-2">Clique na imagem para alterar</small>
@@ -45,14 +58,12 @@
                         CPF
                     {% endif %}
                 </label>
-
                 <input type="text"
-                   name="cpf"
-                   id="cpf_cnpj"
-                   class="form-control {% if usuario.tipo != 'admin' %}bg-light{% endif %}"
-                   value="{{ usuario.cnpj if usuario.tipo == 'admin' else usuario.cpf }}"
-                   {% if usuario.tipo != 'admin' %}readonly{% endif %}>
-
+                       name="cpf"
+                       id="cpf_cnpj"
+                       class="form-control {% if usuario.tipo != 'admin' %}bg-light{% endif %}"
+                       value="{{ usuario.cnpj if usuario.tipo == 'admin' else usuario.cpf }}"
+                       {% if usuario.tipo != 'admin' %}readonly{% endif %}>
                 <small class="text-muted">
                     {% if usuario.tipo == 'admin' %}
                         Informe o CNPJ.
@@ -70,7 +81,7 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Conselho</label>
+                <label class="form-label">Conselho Particular</label>
                 {% if usuario.tipo == 'admin' %}
                     <select name="conselho_id" class="form-select select2" id="conselho_id">
                         <option value="">Selecione um conselho...</option>
@@ -96,12 +107,6 @@
                 {% if usuario.tipo == 'admin' %}
                     <select name="conferencia_id" class="form-select select2" id="conferencia_id">
                         <option value="">Selecione uma conferência...</option>
-                        {% for c in conferencias %}
-                            <option value="{{ c.id }}"
-                                {% if usuario.conferencia_id == c.id %}selected{% endif %}>
-                                {{ c.nome }}
-                            </option>
-                        {% endfor %}
                     </select>
                 {% else %}
                     <input type="text" class="form-control bg-light"
@@ -129,12 +134,10 @@
                     <label class="form-label">Senha Atual</label>
                     <input type="password" name="senha_atual" class="form-control">
                 </div>
-
                 <div class="mb-3">
                     <label class="form-label">Nova Senha</label>
                     <input type="password" name="nova_senha" id="nova_senha" class="form-control">
                 </div>
-
                 <div class="mb-3">
                     <label class="form-label">Confirmar Nova Senha</label>
                     <input type="password" name="confirmar_senha" id="confirmar_senha" class="form-control">
@@ -152,7 +155,7 @@
     </div>
 </div>
 
-{% if not usuario.email_confirmado %}
+{% if usuario.email and not usuario.email_confirmado %}
 <div class="alert alert-warning mt-3">
     <strong>Conta pendente de confirmação.</strong><br>
     Foi enviado um e-mail para: <strong>{{ usuario.email }}</strong>
@@ -161,8 +164,8 @@
 <form method="POST" action="{{ url_for('reenviar_confirmacao') }}" class="mt-2">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="email" value="{{ usuario.email }}">
-
-    <button type="submit" id="btnReenviar" class="btn btn-outline-primary" {% if tempo_restante > 0 %}disabled{% endif %}>
+    <button type="submit" id="btnReenviar" class="btn btn-outline-primary"
+            {% if tempo_restante > 0 %}disabled{% endif %}>
         {% if tempo_restante > 0 %}
             Reenviar em <span id="contador">{{ tempo_restante }}</span>s
         {% else %}
@@ -170,20 +173,17 @@
         {% endif %}
     </button>
 </form>
+{% endif %}
 
 <script>
+    // ========================= CONTADOR REENVIO =========================
     let tempoRestante = {{ tempo_restante|default(0) }};
     const botao = document.getElementById('btnReenviar');
     const contador = document.getElementById('contador');
-
-    if (tempoRestante > 0) {
+    if (tempoRestante > 0 && botao) {
         const intervalo = setInterval(() => {
             tempoRestante--;
-
-            if (contador) {
-                contador.textContent = tempoRestante;
-            }
-
+            if (contador) contador.textContent = tempoRestante;
             if (tempoRestante <= 0) {
                 clearInterval(intervalo);
                 botao.disabled = false;
@@ -191,10 +191,7 @@
             }
         }, 1000);
     }
-</script>
-{% endif %}
 
-<script>
     // ========================= FOTO PREVIEW =========================
     const inputFoto = document.getElementById('input_foto');
     if (inputFoto) {
@@ -209,7 +206,11 @@
                 }
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('preview_foto').src = e.target.result;
+                    const img = document.getElementById('preview_foto');
+                    const placeholder = document.getElementById('avatar_placeholder');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    if (placeholder) placeholder.style.display = 'none';
                 };
                 reader.readAsDataURL(file);
             }
@@ -280,15 +281,13 @@
             }
         });
         telefone.addEventListener('keypress', function (e) {
-            const char = String.fromCharCode(e.which);
-            if (!/[0-9]/.test(char)) e.preventDefault();
+            if (!/[0-9]/.test(String.fromCharCode(e.which))) e.preventDefault();
         });
     }
 
     // ========================= VALIDAR NOME =========================
     function permitirApenasLetras(event) {
-        const char = String.fromCharCode(event.which);
-        if (!/[A-Za-zÀ-ÿ\s\-]/.test(char)) event.preventDefault();
+        if (!/[A-Za-zÀ-ÿ\s\-]/.test(String.fromCharCode(event.which))) event.preventDefault();
     }
     const inputNome = document.querySelector('input[name="nome"]');
     const inputSobrenome = document.querySelector('input[name="sobrenome"]');
@@ -305,7 +304,7 @@
             alert('Informe um telefone válido com DDD.');
             return;
         }
-        if (novaSenha.value || confirmarSenha.value) {
+        if (novaSenha && (novaSenha.value || confirmarSenha.value)) {
             if (!document.querySelector('input[name="senha_atual"]').value) {
                 e.preventDefault();
                 alert('Informe sua senha atual para alterar a senha.');
@@ -327,7 +326,52 @@
             }
         }
     });
-
 </script>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $('#conselho_id').select2({
+            placeholder: "Digite para buscar...",
+            allowClear: true,
+            width: '100%'
+        });
+
+        $('#conferencia_id').select2({
+            placeholder: "Selecione um conselho primeiro...",
+            allowClear: true,
+            width: '100%'
+        });
+
+        function carregarConferencias(conselhoId, conferenciaSelecionada) {
+            const $conferencia = $('#conferencia_id');
+
+            if (!conselhoId) {
+                $conferencia.empty().append('<option value="">Selecione um conselho primeiro...</option>').trigger('change');
+                return;
+            }
+
+            $.getJSON(`/api/conferencias/${conselhoId}`, function (data) {
+                $conferencia.empty().append('<option value="">Selecione uma conferência...</option>');
+                data.forEach(function (c) {
+                    const selected = conferenciaSelecionada && c.id == conferenciaSelecionada ? 'selected' : '';
+                    $conferencia.append(`<option value="${c.id}" ${selected}>${c.nome}</option>`);
+                });
+                $conferencia.trigger('change');
+            });
+        }
+
+        const conselhoAtual = $('#conselho_id').val();
+        const conferenciaAtual = '{{ usuario.conferencia_id or "" }}';
+        if (conselhoAtual) {
+            carregarConferencias(conselhoAtual, conferenciaAtual);
+        }
+
+        $('#conselho_id').on('change', function () {
+            carregarConferencias($(this).val(), null);
+        });
+    });
+</script>
 {% endblock %}
