@@ -1,0 +1,228 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"2ad47316-b787-4556-b571-6ed466d12290\" name=\"Changes\" comment=\"conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/app.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app.py\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/templates/base.html\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/templates/base.html\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/templates/dashboard.html\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/templates/dashboard.html\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/templates/login.html\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/templates/login.html\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"HTML File\" />\r\n        <option value=\"Python Script\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;Joao-Gasparini&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/Joao-Gasparini/sistema-vicentinos.git&quot;,\r\n    &quot;accountId&quot;: &quot;344966fc-3c9e-46e8-aaeb-d3aeb1c3ae60&quot;\r\n  }\r\n}</component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 3\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"3AtT4nrCdBHfADTUhEjuIzhMHkv\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,\r\n    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,\r\n    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,\r\n    &quot;Python.app.executor&quot;: &quot;Run&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;master&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\ESTAGIOTI\\PycharmProjects\\sistema-vicentinos\" />\r\n      <recent name=\"C:\\Users\\ESTAGIOTI\\PycharmProjects\\sistema-vicentinos\\.venv\" />\r\n    </key>\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\ESTAGIOTI\\PycharmProjects\\sistema-vicentinos\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-python-sdk-02acdf704d18-cbfc7b97e6b2-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-252.28539.27\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"2ad47316-b787-4556-b571-6ed466d12290\" name=\"Changes\" comment=\"\" />\r\n      <created>1773410679555</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1773410679555</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"login\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1773754317698</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1773754317698</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"login quase prontio\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1773767560308</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1773767560308</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"loguin quase 100%\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1773768543122</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1773768543122</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"loguin quase 100%\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1773769409856</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1773769409857</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"loguin quase 100%\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1773769781065</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1773769781065</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00006\" summary=\"Foto de perfil, edição e visualização de perfil OK\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1773776341522</created>\r\n      <option name=\"number\" value=\"00006\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1773776341522</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00007\" summary=\"Foto de perfil, edição e visualização de perfil OK\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774276068707</created>\r\n      <option name=\"number\" value=\"00007\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774276068707</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00008\" summary=\"Foto de perfil, edição e visualização de perfil OK\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774286373143</created>\r\n      <option name=\"number\" value=\"00008\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774286373143</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00009\" summary=\"Senha de app segura\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774289664420</created>\r\n      <option name=\"number\" value=\"00009\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774289664420</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00010\" summary=\"Proteção CSRF\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774291216780</created>\r\n      <option name=\"number\" value=\"00010\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00010\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774291216780</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00011\" summary=\"Proteção CSRF\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774291253341</created>\r\n      <option name=\"number\" value=\"00011\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00011\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774291253341</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00012\" summary=\"Proteção CSRF\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774291322259</created>\r\n      <option name=\"number\" value=\"00012\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00012\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774291322259</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00013\" summary=\"limite de tamanho de foto\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774298492999</created>\r\n      <option name=\"number\" value=\"00013\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00013\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774298492999</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00014\" summary=\"VALIDAÇÃO DE FORMATO DE CPF\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774384737906</created>\r\n      <option name=\"number\" value=\"00014\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00014\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774384737906</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00015\" summary=\"Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774549145199</created>\r\n      <option name=\"number\" value=\"00015\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00015\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774549145199</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00016\" summary=\"app.py indentado e comentado.\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774549793168</created>\r\n      <option name=\"number\" value=\"00016\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00016\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774549793168</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00017\" summary=\"app.py indentado e comentado.\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1774981562974</created>\r\n      <option name=\"number\" value=\"00017\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00017\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1774981562974</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00018\" summary=\"app.py indentado e comentado.\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1775062081506</created>\r\n      <option name=\"number\" value=\"00018\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00018\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1775062081506</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00019\" summary=\"admin pode alterar perfil completo, para admin o campo é cnpj\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1775674439046</created>\r\n      <option name=\"number\" value=\"00019\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00019\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1775674439046</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00020\" summary=\"conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1775680621262</created>\r\n      <option name=\"number\" value=\"00020\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00020\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1775680621262</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"21\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"login\" />\r\n    <MESSAGE value=\"login quase prontio\" />\r\n    <MESSAGE value=\"loguin quase 100%\" />\r\n    <MESSAGE value=\"Foto de perfil, edição e visualização de perfil OK\" />\r\n    <MESSAGE value=\"Senha de app segura\" />\r\n    <MESSAGE value=\"Proteção CSRF\" />\r\n    <MESSAGE value=\"limite de tamanho de foto\" />\r\n    <MESSAGE value=\"VALIDAÇÃO DE FORMATO DE CPF\" />\r\n    <MESSAGE value=\"Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email\" />\r\n    <MESSAGE value=\"app.py indentado e comentado.\" />\r\n    <MESSAGE value=\"admin pode alterar perfil completo, para admin o campo é cnpj\" />\r\n    <MESSAGE value=\"conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision f2733bf59fe4c97c9224d720d1fc05cd30960db9)
++++ b/.idea/workspace.xml	(date 1776097333862)
+@@ -4,12 +4,9 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também">
++    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="">
++      <change beforePath="$PROJECT_DIR$/.idea/sistema-vicentinos.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sistema-vicentinos.iml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/templates/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/dashboard.html" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/login.html" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -19,8 +16,8 @@
+   <component name="FileTemplateManagerImpl">
+     <option name="RECENT_TEMPLATES">
+       <list>
+-        <option value="HTML File" />
+         <option value="Python Script" />
++        <option value="HTML File" />
+       </list>
+     </option>
+   </component>
+@@ -35,8 +32,8 @@
+ }</component>
+   <component name="GithubPullRequestsUISettings">{
+   &quot;selectedUrlAndAccountId&quot;: {
+-    &quot;url&quot;: &quot;https://github.com/Joao-Gasparini/sistema-vicentinos.git&quot;,
+-    &quot;accountId&quot;: &quot;344966fc-3c9e-46e8-aaeb-d3aeb1c3ae60&quot;
++    &quot;url&quot;: &quot;https://github.com/Joao-Gasparini/sistema-vicentinos&quot;,
++    &quot;accountId&quot;: &quot;a0207e28-da6d-4a46-a1a3-99a73158f615&quot;
+   }
+ }</component>
+   <component name="ProjectColorInfo">{
+@@ -49,7 +46,6 @@
+   </component>
+   <component name="PropertiesComponent">{
+   &quot;keyToString&quot;: {
+-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+     &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+     &quot;Python.app.executor&quot;: &quot;Run&quot;,
+@@ -58,7 +54,7 @@
+     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+     &quot;last_opened_file_path&quot;: &quot;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos&quot;,
+-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
++    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;
+   }
+ }</component>
+   <component name="RecentsManager">
+@@ -125,127 +121,7 @@
+       <option name="project" value="LOCAL" />
+       <updated>1773769781065</updated>
+     </task>
+-    <task id="LOCAL-00006" summary="Foto de perfil, edição e visualização de perfil OK">
+-      <option name="closed" value="true" />
+-      <created>1773776341522</created>
+-      <option name="number" value="00006" />
+-      <option name="presentableId" value="LOCAL-00006" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1773776341522</updated>
+-    </task>
+-    <task id="LOCAL-00007" summary="Foto de perfil, edição e visualização de perfil OK">
+-      <option name="closed" value="true" />
+-      <created>1774276068707</created>
+-      <option name="number" value="00007" />
+-      <option name="presentableId" value="LOCAL-00007" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774276068707</updated>
+-    </task>
+-    <task id="LOCAL-00008" summary="Foto de perfil, edição e visualização de perfil OK">
+-      <option name="closed" value="true" />
+-      <created>1774286373143</created>
+-      <option name="number" value="00008" />
+-      <option name="presentableId" value="LOCAL-00008" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774286373143</updated>
+-    </task>
+-    <task id="LOCAL-00009" summary="Senha de app segura">
+-      <option name="closed" value="true" />
+-      <created>1774289664420</created>
+-      <option name="number" value="00009" />
+-      <option name="presentableId" value="LOCAL-00009" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774289664420</updated>
+-    </task>
+-    <task id="LOCAL-00010" summary="Proteção CSRF">
+-      <option name="closed" value="true" />
+-      <created>1774291216780</created>
+-      <option name="number" value="00010" />
+-      <option name="presentableId" value="LOCAL-00010" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774291216780</updated>
+-    </task>
+-    <task id="LOCAL-00011" summary="Proteção CSRF">
+-      <option name="closed" value="true" />
+-      <created>1774291253341</created>
+-      <option name="number" value="00011" />
+-      <option name="presentableId" value="LOCAL-00011" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774291253341</updated>
+-    </task>
+-    <task id="LOCAL-00012" summary="Proteção CSRF">
+-      <option name="closed" value="true" />
+-      <created>1774291322259</created>
+-      <option name="number" value="00012" />
+-      <option name="presentableId" value="LOCAL-00012" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774291322259</updated>
+-    </task>
+-    <task id="LOCAL-00013" summary="limite de tamanho de foto">
+-      <option name="closed" value="true" />
+-      <created>1774298492999</created>
+-      <option name="number" value="00013" />
+-      <option name="presentableId" value="LOCAL-00013" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774298492999</updated>
+-    </task>
+-    <task id="LOCAL-00014" summary="VALIDAÇÃO DE FORMATO DE CPF">
+-      <option name="closed" value="true" />
+-      <created>1774384737906</created>
+-      <option name="number" value="00014" />
+-      <option name="presentableId" value="LOCAL-00014" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774384737906</updated>
+-    </task>
+-    <task id="LOCAL-00015" summary="Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email">
+-      <option name="closed" value="true" />
+-      <created>1774549145199</created>
+-      <option name="number" value="00015" />
+-      <option name="presentableId" value="LOCAL-00015" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774549145199</updated>
+-    </task>
+-    <task id="LOCAL-00016" summary="app.py indentado e comentado.">
+-      <option name="closed" value="true" />
+-      <created>1774549793168</created>
+-      <option name="number" value="00016" />
+-      <option name="presentableId" value="LOCAL-00016" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774549793168</updated>
+-    </task>
+-    <task id="LOCAL-00017" summary="app.py indentado e comentado.">
+-      <option name="closed" value="true" />
+-      <created>1774981562974</created>
+-      <option name="number" value="00017" />
+-      <option name="presentableId" value="LOCAL-00017" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1774981562974</updated>
+-    </task>
+-    <task id="LOCAL-00018" summary="app.py indentado e comentado.">
+-      <option name="closed" value="true" />
+-      <created>1775062081506</created>
+-      <option name="number" value="00018" />
+-      <option name="presentableId" value="LOCAL-00018" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1775062081506</updated>
+-    </task>
+-    <task id="LOCAL-00019" summary="admin pode alterar perfil completo, para admin o campo é cnpj">
+-      <option name="closed" value="true" />
+-      <created>1775674439046</created>
+-      <option name="number" value="00019" />
+-      <option name="presentableId" value="LOCAL-00019" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1775674439046</updated>
+-    </task>
+-    <task id="LOCAL-00020" summary="conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também">
+-      <option name="closed" value="true" />
+-      <created>1775680621262</created>
+-      <option name="number" value="00020" />
+-      <option name="presentableId" value="LOCAL-00020" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1775680621262</updated>
+-    </task>
+-    <option name="localTasksCounter" value="21" />
++    <option name="localTasksCounter" value="6" />
+     <servers />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+@@ -263,15 +139,6 @@
+     <MESSAGE value="login" />
+     <MESSAGE value="login quase prontio" />
+     <MESSAGE value="loguin quase 100%" />
+-    <MESSAGE value="Foto de perfil, edição e visualização de perfil OK" />
+-    <MESSAGE value="Senha de app segura" />
+-    <MESSAGE value="Proteção CSRF" />
+-    <MESSAGE value="limite de tamanho de foto" />
+-    <MESSAGE value="VALIDAÇÃO DE FORMATO DE CPF" />
+-    <MESSAGE value="Loguin de Administrador e de vicentino separado, sistema de login ok, redefinição de senha ok, reenviar confirmação de email, confirmação de email" />
+-    <MESSAGE value="app.py indentado e comentado." />
+-    <MESSAGE value="admin pode alterar perfil completo, para admin o campo é cnpj" />
+-    <MESSAGE value="conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também" />
+-    <option name="LAST_COMMIT_MESSAGE" value="conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também" />
++    <option name="LAST_COMMIT_MESSAGE" value="loguin quase 100%" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: .idea/sistema-vicentinos.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<module type=\"PYTHON_MODULE\" version=\"4\">\r\n  <component name=\"NewModuleRootManager\">\r\n    <content url=\"file://$MODULE_DIR$\">\r\n      <excludeFolder url=\"file://$MODULE_DIR$/.venv\" />\r\n    </content>\r\n    <orderEntry type=\"jdk\" jdkName=\"Python 3.13 (sistema-vicentinos)\" jdkType=\"Python SDK\" />\r\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\r\n  </component>\r\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/sistema-vicentinos.iml b/.idea/sistema-vicentinos.iml
+--- a/.idea/sistema-vicentinos.iml	(revision f2733bf59fe4c97c9224d720d1fc05cd30960db9)
++++ b/.idea/sistema-vicentinos.iml	(date 1775872386062)
+@@ -3,6 +3,7 @@
+   <component name="NewModuleRootManager">
+     <content url="file://$MODULE_DIR$">
+       <excludeFolder url="file://$MODULE_DIR$/.venv" />
++      <excludeFolder url="file://$MODULE_DIR$/.venv1" />
+     </content>
+     <orderEntry type="jdk" jdkName="Python 3.13 (sistema-vicentinos)" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
