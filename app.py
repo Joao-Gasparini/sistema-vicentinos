@@ -14,7 +14,6 @@ from phonenumbers import NumberParseException
 from flask_wtf.csrf import CSRFProtect
 from functools import wraps
 
-
 import phonenumbers
 import time
 import re
