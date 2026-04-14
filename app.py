@@ -357,10 +357,6 @@ def login():
             flash('Documento ou senha incorretos.', 'danger')
             return render_template('login.html', cpf_input=cpf_input)
 
-        if vicentino.status == 'pendente':
-            flash('Conta pendente de confirmação de e-mail.', 'warning')
-            return render_template('login.html', cpf_input=cpf_input, email_pendente=vicentino.email, tempo_restante=0)
-
         session['vicentino_id'] = vicentino.id
         session['vicentino_nome'] = vicentino.nome
         session['vicentino_email'] = vicentino.email
@@ -1049,7 +1045,7 @@ def listar_vicentinos():
     nome_busca = request.args.get('nome', '').strip()
     status_filtro = request.args.get('status', '')
 
-    query = Vicentino.query
+    query = Vicentino.query.filter(Vicentino.tipo != 'admin')
 
     if nome_busca:
         termo = f'%{nome_busca}%'

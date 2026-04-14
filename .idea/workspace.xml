@@ -4,7 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="40%" />
+    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="claude.md">
+      <change beforePath="$PROJECT_DIR$/.idea/sistema-vicentinos.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sistema-vicentinos.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/criar_admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/criar_admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/esqueci_senha.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/esqueci_senha.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/perfil.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/perfil.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/redefinir_senha.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/redefinir_senha.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/reenviar_confirmacao.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/reenviar_confirmacao.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,8 +40,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Joao-Gasparini/sistema-vicentinos.git&quot;,
-    &quot;accountId&quot;: &quot;344966fc-3c9e-46e8-aaeb-d3aeb1c3ae60&quot;
+    &quot;url&quot;: &quot;https://github.com/Joao-Gasparini/sistema-vicentinos&quot;,
+    &quot;accountId&quot;: &quot;a0207e28-da6d-4a46-a1a3-99a73158f615&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -41,20 +52,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.app.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.app.executor": "Run",
+    "Python.criar_admin.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/ESTAGIOTI/PycharmProjects/sistema-vicentinos",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\ESTAGIOTI\PycharmProjects\sistema-vicentinos" />
@@ -247,13 +259,13 @@
       <option name="project" value="LOCAL" />
       <updated>1775767265708</updated>
     </task>
-    <task id="LOCAL-00022" summary="40%">
+    <task id="LOCAL-00022" summary="claude.md">
       <option name="closed" value="true" />
-      <created>1776097544978</created>
+      <created>1776126182001</created>
       <option name="number" value="00022" />
       <option name="presentableId" value="LOCAL-00022" />
       <option name="project" value="LOCAL" />
-      <updated>1776097544978</updated>
+      <updated>1776126182001</updated>
     </task>
     <option name="localTasksCounter" value="23" />
     <servers />
@@ -282,7 +294,7 @@
     <MESSAGE value="app.py indentado e comentado." />
     <MESSAGE value="admin pode alterar perfil completo, para admin o campo é cnpj" />
     <MESSAGE value="conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também" />
-    <MESSAGE value="40%" />
-    <option name="LAST_COMMIT_MESSAGE" value="40%" />
+    <MESSAGE value="claude.md" />
+    <option name="LAST_COMMIT_MESSAGE" value="claude.md" />
   </component>
 </project>

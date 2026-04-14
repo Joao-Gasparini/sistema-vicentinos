@@ -9,9 +9,9 @@ with app.app_context():
         print("Admin já existe!")
     else:
         admin = Vicentino(
-            nome='Admin',
-            sobrenome='Sistema',
-            cpf='12345678901',
+            nome='Sociedade',
+            sobrenome='São Vicente de Paula',
+            cpf='34127563000167',
             email='admin@email.com',
             senha_hash=generate_password_hash('123456'),
             tipo='admin',

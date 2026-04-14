@@ -24,10 +24,17 @@
         <!-- EMAIL -->
         <p class="text-muted mb-3">{{ usuario.email }}</p>
 
-        <!-- INFORMAÇÕES EXTRAS (se quiser depois) -->
-        {# Exemplo futuro:
-        <p class="text-muted">{{ usuario.telefone }}</p>
-        #}
+        <!-- CONSELHO E CONFERÊNCIA -->
+        <div class="text-start mb-3">
+            <p class="mb-1">
+                <strong>Conselho:</strong>
+                {{ usuario.conselho_rel.nome if usuario.conselho_rel else 'Não informado' }}
+            </p>
+            <p class="mb-0">
+                <strong>Conferência:</strong>
+                {{ usuario.conferencia_rel.nome if usuario.conferencia_rel else 'Não informado' }}
+            </p>
+        </div>
 
         <!-- BOTÕES -->
         <div class="d-flex justify-content-center gap-2 mt-3">
