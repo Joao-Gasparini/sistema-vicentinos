@@ -58,12 +58,12 @@
             </div>
 
             <div class="col-md-3">
-                <label class="form-label mb-1 text-muted small">Conselho Particular</label>
-                <select name="conselho_id" class="form-select select2">
-                    <option value="">Todos os Conselhos</option>
-                    {% for c in conselhos %}
+                <label class="form-label mb-1 text-muted small">Conferência</label>
+                <select name="conferencia_id" class="form-select select2">
+                    <option value="">Todas as Conferências</option>
+                    {% for c in conferencias %}
                         <option value="{{ c.id }}"
-                            {% if request.args.get('conselho_id') == c.id|string %}selected{% endif %}>
+                            {% if request.args.get('conferencia_id') == c.id|string %}selected{% endif %}>
                             {{ c.nome }}
                         </option>
                     {% endfor %}
@@ -71,12 +71,12 @@
             </div>
 
             <div class="col-md-3">
-                <label class="form-label mb-1 text-muted small">Conferência</label>
-                <select name="conferencia_id" class="form-select select2">
-                    <option value="">Todas as Conferências</option>
-                    {% for c in conferencias %}
+                <label class="form-label mb-1 text-muted small">Conselho Particular</label>
+                <select name="conselho_id" class="form-select select2">
+                    <option value="">Todos os Conselhos</option>
+                    {% for c in conselhos %}
                         <option value="{{ c.id }}"
-                            {% if request.args.get('conferencia_id') == c.id|string %}selected{% endif %}>
+                            {% if request.args.get('conselho_id') == c.id|string %}selected{% endif %}>
                             {{ c.nome }}
                         </option>
                     {% endfor %}

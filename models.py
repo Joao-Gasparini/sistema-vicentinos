@@ -83,6 +83,7 @@ class Familia(db.Model):
     complemento = db.Column(db.String(100))
     bairro = db.Column(db.String(100), nullable=False)
     cidade = db.Column(db.String(100), nullable=False)
+    estado = db.Column(db.String(2), nullable=True)
     cep = db.Column(db.String(10))
     ponto_referencia = db.Column(db.String(150))
     quantidade_moradores = db.Column(db.Integer)

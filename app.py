@@ -574,22 +574,22 @@ def cadastrar_familia():
         complemento      = request.form.get('complemento', '').strip()
         bairro           = request.form.get('bairro', '').strip()
         cidade           = request.form.get('cidade', '').strip()
+        estado           = request.form.get('estado', '').strip().upper()
         cep              = request.form.get('cep', '').strip()
         qtd_moradores    = request.form.get('quantidade_moradores', '').strip()
         qtd_criancas     = request.form.get('quantidade_criancas', '').strip()
         vicentino_id     = request.form.get('vicentino_id', '').strip()
         conferencia_id   = request.form.get('conferencia_id', '').strip() or None
         observacoes      = request.form.get('observacoes', '').strip()
-        status           = request.form.get('status', 'ativa')
 
         form_data = dict(
             nome_responsavel=nome_responsavel, cpf_responsavel=cpf_input,
             telefone_principal=telefone1, telefone_secundario=telefone2,
             endereco=endereco, numero=numero, complemento=complemento,
-            bairro=bairro, cidade=cidade, cep=cep,
+            bairro=bairro, cidade=cidade, estado=estado, cep=cep,
             quantidade_moradores=qtd_moradores, quantidade_criancas=qtd_criancas,
             vicentino_id=vicentino_id, conferencia_id=conferencia_id,
-            observacoes=observacoes, status=status,
+            observacoes=observacoes,
         )
 
         def erro(msg):
@@ -623,13 +623,14 @@ def cadastrar_familia():
             complemento       = complemento or None,
             bairro            = bairro,
             cidade            = cidade,
+            estado            = estado or None,
             cep               = cep or None,
             quantidade_moradores = int(qtd_moradores) if qtd_moradores.isdigit() else None,
             quantidade_criancas  = int(qtd_criancas)  if qtd_criancas.isdigit()  else None,
             vicentino_id      = int(vicentino_id),
             conferencia_id    = int(conferencia_id) if conferencia_id else None,
             observacoes       = observacoes or None,
-            status            = status,
+            status            = 'ativa',
         )
 
         db.session.add(nova_familia)
@@ -999,6 +1000,7 @@ def editar_perfil():
     extensoes_permitidas = {'jpg', 'jpeg', 'png', 'webp'}
     agora = int(time.time())
     ultimo_envio = session.get('ultimo_envio_confirmacao', 0)
+    conselhos = Conselho.query.order_by(Conselho.nome).all()
 
     # Calcula o tempo restante do cooldown de reenvio de confirmação
     tempo_restante = max(0, 50 - (agora - ultimo_envio)) if usuario.email and not usuario.email_confirmado else 0
@@ -1013,9 +1015,9 @@ def editar_perfil():
                     'editar_perfil.html',
                     usuario=usuario,
                     erros=erros,
+                    conselhos=conselhos,
                     telefone_input=telefone_para_input(usuario.telefone),
                     tempo_restante=0,
-                    conselhos=conselhos
                 )
 
             if usuario.email_confirmado:
@@ -1024,9 +1026,9 @@ def editar_perfil():
                     'editar_perfil.html',
                     usuario=usuario,
                     erros=erros,
+                    conselhos=conselhos,
                     telefone_input=telefone_para_input(usuario.telefone),
                     tempo_restante=0,
-                    conselhos=conselhos
                 )
 
             if tempo_restante > 0:
@@ -1035,9 +1037,9 @@ def editar_perfil():
                     'editar_perfil.html',
                     usuario=usuario,
                     erros=erros,
+                    conselhos=conselhos,
                     telefone_input=telefone_para_input(usuario.telefone),
                     tempo_restante=tempo_restante,
-                    conselhos=conselhos
                 )
 
             try:
@@ -1052,17 +1054,17 @@ def editar_perfil():
                 'editar_perfil.html',
                 usuario=usuario,
                 erros=erros,
+                conselhos=conselhos,
                 telefone_input=telefone_para_input(usuario.telefone),
                 tempo_restante=tempo_restante,
-                conselhos=conselhos
             )
 
         # ── Leitura dos campos do formulário ──────────────────────────────
         nome = request.form.get('nome', '').strip()
         sobrenome = request.form.get('sobrenome', '').strip()
         telefone = request.form.get('telefone', '').strip()
-        conselho = request.form.get('conselho', '').strip()
-        conferencia = request.form.get('conferencia', '').strip()
+        conselho_id = request.form.get('conselho_id') or None
+        conferencia_id = request.form.get('conferencia_id') or None
         cpf_input = request.form.get('cpf', '').strip()
         documento = limpar_numero(cpf_input)
         senha_atual = request.form.get('senha_atual', '').strip()
@@ -1121,9 +1123,9 @@ def editar_perfil():
                     'editar_perfil.html',
                     usuario=usuario,
                     erros=erros,
+                    conselhos=conselhos,
                     telefone_input=telefone_para_input(usuario.telefone),
                     tempo_restante=tempo_restante,
-                    conselhos=conselhos
                 )
 
             if not senha_atual:
@@ -1150,9 +1152,9 @@ def editar_perfil():
                 'editar_perfil.html',
                 usuario=usuario,
                 erros=erros,
+                conselhos=conselhos,
                 telefone_input=telefone_para_input(usuario.telefone),
                 tempo_restante=tempo_restante,
-                conselhos=conselhos
             )
 
         # ── Atualiza os dados no banco ────────────────────────────────────
@@ -1162,8 +1164,8 @@ def editar_perfil():
 
         # Campos exclusivos para administradores
         if usuario.tipo == 'admin':
-            usuario.conselho = conselho if conselho else None
-            usuario.conferencia = conferencia if conferencia else None
+            usuario.conselho_id = int(conselho_id) if conselho_id else None
+            usuario.conferencia_id = int(conferencia_id) if conferencia_id else None
             usuario.cnpj = documento if documento else None
             usuario.cpf = None
         else:
@@ -1199,9 +1201,9 @@ def editar_perfil():
             'editar_perfil.html',
             usuario=usuario,
             erros={},
+            conselhos=conselhos,
             telefone_input=telefone_para_input(usuario.telefone),
             tempo_restante=tempo_restante,
-            conselhos=conselhos
         )
 
     # GET: renderiza a página com os dados atuais do usuário
@@ -1209,9 +1211,9 @@ def editar_perfil():
         'editar_perfil.html',
         usuario=usuario,
         erros=erros,
+        conselhos=conselhos,
         telefone_input=telefone_para_input(usuario.telefone),
         tempo_restante=tempo_restante,
-        conselhos=conselhos
     )
 
 # =============================
@@ -1397,6 +1399,7 @@ def editar_familia(familia_id):
         complemento      = request.form.get('complemento', '').strip()
         bairro           = request.form.get('bairro', '').strip()
         cidade           = request.form.get('cidade', '').strip()
+        estado           = request.form.get('estado', '').strip().upper()
         cep              = request.form.get('cep', '').strip()
         qtd_moradores    = request.form.get('quantidade_moradores', '').strip()
         qtd_criancas     = request.form.get('quantidade_criancas', '').strip()
@@ -1439,6 +1442,7 @@ def editar_familia(familia_id):
         familia.complemento         = complemento or None
         familia.bairro              = bairro
         familia.cidade              = cidade
+        familia.estado              = estado or None
         familia.cep                 = cep or None
         familia.quantidade_moradores = int(qtd_moradores) if qtd_moradores.isdigit() else None
         familia.quantidade_criancas  = int(qtd_criancas)  if qtd_criancas.isdigit()  else None

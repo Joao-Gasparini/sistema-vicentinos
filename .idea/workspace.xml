@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="sistema de email de confirmação corrigido.">
+    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="40%">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin_cadastrar_familia.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_cadastrar_familia.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin_editar_familia.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_editar_familia.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin_familias.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_familias.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/admin_vicentinos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_vicentinos.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/dashboard.html" afterDir="false" />
@@ -34,12 +38,12 @@
     &quot;assignee&quot;: &quot;Joao-Gasparini&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Joao-Gasparini/sistema-vicentinos&quot;,
-    &quot;accountId&quot;: &quot;a0207e28-da6d-4a46-a1a3-99a73158f615&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Joao-Gasparini/sistema-vicentinos.git",
+    "accountId": "344966fc-3c9e-46e8-aaeb-d3aeb1c3ae60"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -263,31 +267,7 @@
       <option name="project" value="LOCAL" />
       <updated>1776126182001</updated>
     </task>
-    <task id="LOCAL-00023" summary="bugs corrigidos, cores padronizadas.">
-      <option name="closed" value="true" />
-      <created>1776128236884</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1776128236884</updated>
-    </task>
-    <task id="LOCAL-00024" summary="sistema de email de confirmação corrigido.">
-      <option name="closed" value="true" />
-      <created>1776128266000</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1776128266000</updated>
-    </task>
-    <task id="LOCAL-00025" summary="sistema de email de confirmação corrigido.">
-      <option name="closed" value="true" />
-      <created>1776894770470</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1776894770470</updated>
-    </task>
-    <option name="localTasksCounter" value="26" />
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -315,8 +295,6 @@
     <MESSAGE value="admin pode alterar perfil completo, para admin o campo é cnpj" />
     <MESSAGE value="conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também" />
     <MESSAGE value="claude.md" />
-    <MESSAGE value="bugs corrigidos, cores padronizadas." />
-    <MESSAGE value="sistema de email de confirmação corrigido." />
-    <option name="LAST_COMMIT_MESSAGE" value="sistema de email de confirmação corrigido." />
+    <option name="LAST_COMMIT_MESSAGE" value="claude.md" />
   </component>
 </project>

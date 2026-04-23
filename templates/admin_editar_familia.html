@@ -77,15 +77,23 @@
                                    placeholder="Apto, Bloco, etc."
                                    value="{{ familia.complemento or '' }}">
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label">Bairro *</label>
                             <input type="text" name="bairro" id="bairro" class="form-control" required
                                    value="{{ familia.bairro }}">
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label">Cidade *</label>
-                            <input type="text" name="cidade" id="cidade" class="form-control" required
+                            <input type="text" name="cidade" id="cidade" class="form-control bg-light" required readonly
+                                   placeholder="Preenchido pelo CEP"
                                    value="{{ familia.cidade }}">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Estado</label>
+                            <input type="text" name="estado" id="estado" class="form-control bg-light" readonly
+                                   maxlength="2" placeholder="UF"
+                                   style="text-transform: uppercase;"
+                                   value="{{ familia.estado or '' }}">
                         </div>
                     </div>
 
@@ -230,6 +238,7 @@ $(document).ready(function () {
                 if (data.logradouro) document.getElementById('endereco').value = data.logradouro;
                 if (data.bairro)     document.getElementById('bairro').value   = data.bairro;
                 if (data.localidade) document.getElementById('cidade').value   = data.localidade;
+                if (data.uf)         document.getElementById('estado').value   = data.uf;
                 status.textContent = 'Endereço preenchido automaticamente.';
                 status.className = 'form-text text-success';
             })

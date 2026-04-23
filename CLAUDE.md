@@ -150,7 +150,7 @@ devem respeitar rigorosamente as diretrizes abaixo.
 - Azul principal: #0064B6
 - Vermelho: #FF0000
 - Branco: #FFFFFF
-- Preto (P&B): #000000
+- Preto (P&B): #000000AGORA BLOQUEIE OS CAMPOS CIDADE E ESTADO QUANDO 
 
 ### Tipografia
 - Oficial (logotipo e textos corridos): Garamond
