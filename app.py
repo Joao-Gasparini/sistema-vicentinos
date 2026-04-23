@@ -20,7 +20,7 @@ import re
 import os
 
 from config import Config
-from models import db, Vicentino, Conselho, Conferencia
+from models import db, Vicentino, Conselho, Conferencia, Familia
 
 # =========================================================
 # INICIALIZAÇÃO DA APLICAÇÃO
@@ -475,6 +475,176 @@ def cadastrar_vicentino():
     )
 
 
+@app.route('/admin/familias')
+@admin_required
+def listar_familias():
+    """Lista todas as famílias assistidas com filtros. Apenas admin."""
+    nome_busca       = request.args.get('nome', '').strip()
+    conferencia_raw  = request.args.get('conferencia_id', '')
+    vicentino_raw    = request.args.get('vicentino_id', '')
+    status_filtro    = request.args.get('status', '')
+
+    query = Familia.query
+
+    if nome_busca:
+        query = query.filter(Familia.nome_responsavel.ilike(f'%{nome_busca}%'))
+
+    if conferencia_raw:
+        try:
+            query = query.filter_by(conferencia_id=int(conferencia_raw))
+        except (ValueError, TypeError):
+            pass
+
+    if vicentino_raw:
+        try:
+            query = query.filter_by(vicentino_id=int(vicentino_raw))
+        except (ValueError, TypeError):
+            pass
+
+    todas = query.order_by(Familia.nome_responsavel).all()
+
+    if status_filtro == 'ativa':
+        ativas   = [f for f in todas if f.status == 'ativa']
+        inativas = []
+    elif status_filtro == 'inativa':
+        ativas   = []
+        inativas = [f for f in todas if f.status == 'inativa']
+    else:
+        ativas   = [f for f in todas if f.status == 'ativa']
+        inativas = [f for f in todas if f.status == 'inativa']
+
+    conferencias = Conferencia.query.order_by(Conferencia.nome).all()
+    vicentinos   = Vicentino.query.filter_by(tipo='vicentino').order_by(Vicentino.nome).all()
+
+    return render_template(
+        'admin_familias.html',
+        ativas=ativas,
+        inativas=inativas,
+        conferencias=conferencias,
+        vicentinos=vicentinos,
+    )
+
+
+@app.route('/admin/familia/<int:familia_id>/toggle_status', methods=['POST'])
+@admin_required
+def toggle_status_familia(familia_id):
+    """Ativa ou inativa uma família. Apenas admin."""
+    familia = Familia.query.get_or_404(familia_id)
+    if familia.status == 'inativa':
+        familia.status = 'ativa'
+        flash(f'Família de {familia.nome_responsavel} reativada com sucesso.', 'success')
+    else:
+        familia.status = 'inativa'
+        flash(f'Família de {familia.nome_responsavel} inativada.', 'warning')
+    db.session.commit()
+    return redirect(request.referrer or url_for('listar_familias'))
+
+
+@app.route('/admin/familias/cadastrar', methods=['GET', 'POST'])
+@admin_required
+def cadastrar_familia():
+    """Cadastra uma nova família assistida. Apenas admin."""
+    import json
+
+    vicentinos = (
+        Vicentino.query
+        .filter_by(tipo='vicentino', status='ativo')
+        .order_by(Vicentino.nome)
+        .all()
+    )
+
+    vicentinos_data = [
+        {
+            'id': v.id,
+            'nome': f"{v.nome} {v.sobrenome}",
+            'conferencia_id': v.conferencia_id,
+            'conferencia_nome': v.conferencia_rel.nome if v.conferencia_rel else ''
+        }
+        for v in vicentinos
+    ]
+
+    if request.method == 'POST':
+        nome_responsavel = request.form.get('nome_responsavel', '').strip()
+        cpf_input        = request.form.get('cpf_responsavel', '').strip()
+        cpf              = re.sub(r'\D', '', cpf_input)
+        telefone1        = request.form.get('telefone_principal', '').strip()
+        telefone2        = request.form.get('telefone_secundario', '').strip()
+        endereco         = request.form.get('endereco', '').strip()
+        numero           = request.form.get('numero', '').strip()
+        complemento      = request.form.get('complemento', '').strip()
+        bairro           = request.form.get('bairro', '').strip()
+        cidade           = request.form.get('cidade', '').strip()
+        cep              = request.form.get('cep', '').strip()
+        qtd_moradores    = request.form.get('quantidade_moradores', '').strip()
+        qtd_criancas     = request.form.get('quantidade_criancas', '').strip()
+        vicentino_id     = request.form.get('vicentino_id', '').strip()
+        conferencia_id   = request.form.get('conferencia_id', '').strip() or None
+        observacoes      = request.form.get('observacoes', '').strip()
+        status           = request.form.get('status', 'ativa')
+
+        form_data = dict(
+            nome_responsavel=nome_responsavel, cpf_responsavel=cpf_input,
+            telefone_principal=telefone1, telefone_secundario=telefone2,
+            endereco=endereco, numero=numero, complemento=complemento,
+            bairro=bairro, cidade=cidade, cep=cep,
+            quantidade_moradores=qtd_moradores, quantidade_criancas=qtd_criancas,
+            vicentino_id=vicentino_id, conferencia_id=conferencia_id,
+            observacoes=observacoes, status=status,
+        )
+
+        def erro(msg):
+            flash(msg, 'danger')
+            return render_template(
+                'admin_cadastrar_familia.html',
+                vicentinos_data=json.dumps(vicentinos_data),
+                vicentinos=vicentinos,
+                form_data=form_data,
+            )
+
+        if not nome_responsavel or not endereco or not numero or not bairro or not cidade:
+            return erro('Preencha todos os campos obrigatórios.')
+
+        if not vicentino_id:
+            return erro('Selecione um Vicentino Responsável.')
+
+        if cpf:
+            if not cpf_valido(cpf):
+                return erro('CPF inválido.')
+            if Familia.query.filter_by(cpf_responsavel=cpf).first():
+                return erro('Já existe uma família cadastrada com esse CPF.')
+
+        nova_familia = Familia(
+            nome_responsavel  = nome_responsavel,
+            cpf_responsavel   = cpf if cpf else None,
+            telefone_principal  = telefone1 or None,
+            telefone_secundario = telefone2 or None,
+            endereco          = endereco,
+            numero            = numero,
+            complemento       = complemento or None,
+            bairro            = bairro,
+            cidade            = cidade,
+            cep               = cep or None,
+            quantidade_moradores = int(qtd_moradores) if qtd_moradores.isdigit() else None,
+            quantidade_criancas  = int(qtd_criancas)  if qtd_criancas.isdigit()  else None,
+            vicentino_id      = int(vicentino_id),
+            conferencia_id    = int(conferencia_id) if conferencia_id else None,
+            observacoes       = observacoes or None,
+            status            = status,
+        )
+
+        db.session.add(nova_familia)
+        db.session.commit()
+
+        flash('Família cadastrada com sucesso!', 'success')
+        return redirect(url_for('dashboard'))
+
+    return render_template(
+        'admin_cadastrar_familia.html',
+        vicentinos_data=json.dumps(vicentinos_data),
+        vicentinos=vicentinos
+    )
+
+
 @app.route('/logout')
 def logout():
     """Encerra a sessão do usuário e redireciona para a página de login."""
@@ -825,6 +995,7 @@ def editar_perfil():
         return redirect(url_for('login'))
 
     erros = {}
+    conselhos = Conselho.query.all()
     extensoes_permitidas = {'jpg', 'jpeg', 'png', 'webp'}
     agora = int(time.time())
     ultimo_envio = session.get('ultimo_envio_confirmacao', 0)
@@ -843,7 +1014,8 @@ def editar_perfil():
                     usuario=usuario,
                     erros=erros,
                     telefone_input=telefone_para_input(usuario.telefone),
-                    tempo_restante=0
+                    tempo_restante=0,
+                    conselhos=conselhos
                 )
 
             if usuario.email_confirmado:
@@ -853,7 +1025,8 @@ def editar_perfil():
                     usuario=usuario,
                     erros=erros,
                     telefone_input=telefone_para_input(usuario.telefone),
-                    tempo_restante=0
+                    tempo_restante=0,
+                    conselhos=conselhos
                 )
 
             if tempo_restante > 0:
@@ -863,7 +1036,8 @@ def editar_perfil():
                     usuario=usuario,
                     erros=erros,
                     telefone_input=telefone_para_input(usuario.telefone),
-                    tempo_restante=tempo_restante
+                    tempo_restante=tempo_restante,
+                    conselhos=conselhos
                 )
 
             try:
@@ -879,7 +1053,8 @@ def editar_perfil():
                 usuario=usuario,
                 erros=erros,
                 telefone_input=telefone_para_input(usuario.telefone),
-                tempo_restante=tempo_restante
+                tempo_restante=tempo_restante,
+                conselhos=conselhos
             )
 
         # ── Leitura dos campos do formulário ──────────────────────────────
@@ -947,7 +1122,8 @@ def editar_perfil():
                     usuario=usuario,
                     erros=erros,
                     telefone_input=telefone_para_input(usuario.telefone),
-                    tempo_restante=tempo_restante
+                    tempo_restante=tempo_restante,
+                    conselhos=conselhos
                 )
 
             if not senha_atual:
@@ -975,7 +1151,8 @@ def editar_perfil():
                 usuario=usuario,
                 erros=erros,
                 telefone_input=telefone_para_input(usuario.telefone),
-                tempo_restante=tempo_restante
+                tempo_restante=tempo_restante,
+                conselhos=conselhos
             )
 
         # ── Atualiza os dados no banco ────────────────────────────────────
@@ -1023,7 +1200,8 @@ def editar_perfil():
             usuario=usuario,
             erros={},
             telefone_input=telefone_para_input(usuario.telefone),
-            tempo_restante=tempo_restante
+            tempo_restante=tempo_restante,
+            conselhos=conselhos
         )
 
     # GET: renderiza a página com os dados atuais do usuário
@@ -1032,7 +1210,8 @@ def editar_perfil():
         usuario=usuario,
         erros=erros,
         telefone_input=telefone_para_input(usuario.telefone),
-        tempo_restante=tempo_restante
+        tempo_restante=tempo_restante,
+        conselhos=conselhos
     )
 
 # =============================
@@ -1181,6 +1360,105 @@ def editar_vicentino_admin(id):
         conselhos=conselhos,
         conferencias=conferencias
     )
+
+@app.route('/admin/familia/<int:familia_id>/editar', methods=['GET', 'POST'])
+@admin_required
+def editar_familia(familia_id):
+    """Edita os dados de uma família assistida. Apenas admin."""
+    import json
+
+    familia = Familia.query.get_or_404(familia_id)
+
+    vicentinos = (
+        Vicentino.query
+        .filter_by(tipo='vicentino', status='ativo')
+        .order_by(Vicentino.nome)
+        .all()
+    )
+
+    vicentinos_data = [
+        {
+            'id': v.id,
+            'nome': f"{v.nome} {v.sobrenome}",
+            'conferencia_id': v.conferencia_id,
+            'conferencia_nome': v.conferencia_rel.nome if v.conferencia_rel else ''
+        }
+        for v in vicentinos
+    ]
+
+    if request.method == 'POST':
+        nome_responsavel = request.form.get('nome_responsavel', '').strip()
+        cpf_input        = request.form.get('cpf_responsavel', '').strip()
+        cpf              = re.sub(r'\D', '', cpf_input)
+        telefone1        = request.form.get('telefone_principal', '').strip()
+        telefone2        = request.form.get('telefone_secundario', '').strip()
+        endereco         = request.form.get('endereco', '').strip()
+        numero           = request.form.get('numero', '').strip()
+        complemento      = request.form.get('complemento', '').strip()
+        bairro           = request.form.get('bairro', '').strip()
+        cidade           = request.form.get('cidade', '').strip()
+        cep              = request.form.get('cep', '').strip()
+        qtd_moradores    = request.form.get('quantidade_moradores', '').strip()
+        qtd_criancas     = request.form.get('quantidade_criancas', '').strip()
+        vicentino_id     = request.form.get('vicentino_id', '').strip()
+        conferencia_id   = request.form.get('conferencia_id', '').strip() or None
+        observacoes      = request.form.get('observacoes', '').strip()
+        status           = request.form.get('status', 'ativa')
+
+        def erro(msg):
+            flash(msg, 'danger')
+            return render_template(
+                'admin_editar_familia.html',
+                familia=familia,
+                vicentinos_data=json.dumps(vicentinos_data),
+                vicentinos=vicentinos,
+            )
+
+        if not nome_responsavel or not endereco or not numero or not bairro or not cidade:
+            return erro('Preencha todos os campos obrigatórios.')
+
+        if not vicentino_id:
+            return erro('Selecione um Vicentino Responsável.')
+
+        if cpf:
+            if not cpf_valido(cpf):
+                return erro('CPF inválido.')
+            duplicado = Familia.query.filter(
+                Familia.cpf_responsavel == cpf,
+                Familia.id != familia_id
+            ).first()
+            if duplicado:
+                return erro('Já existe outra família cadastrada com esse CPF.')
+
+        familia.nome_responsavel    = nome_responsavel
+        familia.cpf_responsavel     = cpf if cpf else None
+        familia.telefone_principal  = telefone1 or None
+        familia.telefone_secundario = telefone2 or None
+        familia.endereco            = endereco
+        familia.numero              = numero
+        familia.complemento         = complemento or None
+        familia.bairro              = bairro
+        familia.cidade              = cidade
+        familia.cep                 = cep or None
+        familia.quantidade_moradores = int(qtd_moradores) if qtd_moradores.isdigit() else None
+        familia.quantidade_criancas  = int(qtd_criancas)  if qtd_criancas.isdigit()  else None
+        familia.vicentino_id        = int(vicentino_id)
+        familia.conferencia_id      = int(conferencia_id) if conferencia_id else None
+        familia.observacoes         = observacoes or None
+        familia.status              = status
+
+        db.session.commit()
+
+        flash('Família atualizada com sucesso!', 'success')
+        return redirect(url_for('listar_familias'))
+
+    return render_template(
+        'admin_editar_familia.html',
+        familia=familia,
+        vicentinos_data=json.dumps(vicentinos_data),
+        vicentinos=vicentinos,
+    )
+
 
 if __name__ == '__main__':
     with app.app_context():

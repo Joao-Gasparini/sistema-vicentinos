@@ -86,12 +86,15 @@ class Familia(db.Model):
     cep = db.Column(db.String(10))
     ponto_referencia = db.Column(db.String(150))
     quantidade_moradores = db.Column(db.Integer)
+    quantidade_criancas = db.Column(db.Integer)
     observacoes = db.Column(db.Text)
     status = db.Column(db.String(10), default='ativa')
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
 
     vicentino_id = db.Column(db.Integer, db.ForeignKey('vicentinos.id'), nullable=False)
+    conferencia_id = db.Column(db.Integer, db.ForeignKey('conferencias.id'), nullable=True)
 
+    conferencia_rel = db.relationship('Conferencia')
     atendimentos = db.relationship('Atendimento', backref='familia', lazy=True)
 
 

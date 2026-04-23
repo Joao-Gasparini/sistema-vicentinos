@@ -74,6 +74,12 @@
                                 <i class="fas fa-plus me-1"></i> Cadastrar Vicentino
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('cadastrar_familia') }}">
+                                <i class="fas fa-house-chimney-medical me-1"></i> Cadastrar Família
+                            </a>
+                        </li>
                     {% endif %}
 
                     {% if session.get('vicentino_id') %}
@@ -82,6 +88,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('listar_vicentinos') }}">
                                 <i class="fas fa-users me-1"></i> Vicentinos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('listar_familias') }}">
+                                <i class="fas fa-house me-1"></i> Famílias
                             </a>
                         </li>
                         {% endif %}
@@ -167,6 +178,10 @@
 
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/pt-BR.js"></script>
+    <script>
+        $.fn.select2.defaults.set('language', 'pt-BR');
+    </script>
 
     <!-- Auto-fechar alertas após 3 segundos -->
     <script>
@@ -179,6 +194,33 @@
     </script>
 
     {% block scripts %}{% endblock %}
+
+    <!-- BOTÃO VOLTAR AO TOPO -->
+    <button id="btn-topo" title="Voltar ao topo"
+            style="display:none; position:fixed; bottom:24px; right:24px; z-index:9999;
+                   width:44px; height:44px; border-radius:50%; border:none;
+                   background-color:#0064B6; color:#fff; font-size:18px;
+                   box-shadow:0 2px 8px rgba(0,0,0,0.25); cursor:pointer;
+                   transition:opacity 0.3s; opacity:0;">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+    <script>
+        const btnTopo = document.getElementById('btn-topo');
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 300) {
+                btnTopo.style.display = 'flex';
+                btnTopo.style.alignItems = 'center';
+                btnTopo.style.justifyContent = 'center';
+                btnTopo.style.opacity = '1';
+            } else {
+                btnTopo.style.opacity = '0';
+                setTimeout(() => { if (window.scrollY <= 300) btnTopo.style.display = 'none'; }, 300);
+            }
+        });
+        btnTopo.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
 
 </body>
 </html>
