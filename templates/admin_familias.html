@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">Famílias Assistidas</h3>
+        <a href="{{ url_for('cadastrar_familia') }}" class="btn text-white"
+           style="background-color: #A32D2D; border-color: #A32D2D;">
+            <i class="fas fa-plus me-1"></i> Nova Família
+        </a>
+    </div>
+
+    <!-- RESPONSIVO MOBILE -->
+    <style>
+        @media (max-width: 767px) {
+            .card-body.card-familia {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            .card-body.card-familia .acoes-familia {
+                flex-direction: row !important;
+                flex-wrap: wrap;
+            }
+            .card-body.card-familia .acoes-familia button {
+                flex: 1;
+            }
+        }
+    </style>
+
+    <!-- FILTROS -->
+    <form method="GET" class="card shadow-sm p-3 mb-4">
+        <div class="row g-2 mb-2">
+            <div class="col-md-4">
+                <label class="form-label mb-1 text-muted small">Nome do Responsável</label>
+                <input type="text" name="nome" class="form-control"
+                       placeholder="Buscar por nome..."
+                       value="{{ request.args.get('nome', '') }}">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label mb-1 text-muted small">Conferência</label>
+                <select name="conferencia_id" class="form-select select2">
+                    <option value="">Todas as Conferências</option>
+                    {% for c in conferencias %}
+                        <option value="{{ c.id }}"
+                            {% if request.args.get('conferencia_id') == c.id|string %}selected{% endif %}>
+                            {{ c.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label mb-1 text-muted small">Vicentino Responsável</label>
+                <select name="vicentino_id" class="form-select select2">
+                    <option value="">Todos os Vicentinos</option>
+                    {% for v in vicentinos %}
+                        <option value="{{ v.id }}"
+                            {% if request.args.get('vicentino_id') == v.id|string %}selected{% endif %}>
+                            {{ v.nome }} {{ v.sobrenome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label mb-1 text-muted small">Situação</label>
+                <select name="status" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="ativa"   {% if request.args.get('status') == 'ativa'   %}selected{% endif %}>Ativas</option>
+                    <option value="inativa" {% if request.args.get('status') == 'inativa' %}selected{% endif %}>Inativas</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-2 justify-content-end">
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i> Filtrar
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('listar_familias') }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-times me-1"></i> Limpar
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <!-- CONTAGEM -->
+    <p class="text-muted small mb-3">
+        {{ ativas|length + inativas|length }} família(s) encontrada(s)
+        {% if ativas %}— {{ ativas|length }} ativa(s){% endif %}
+        {% if inativas %}— {{ inativas|length }} inativa(s){% endif %}
+    </p>
+
+    <!-- MACRO: card da família -->
+    {% macro card_familia(f, inativo=false) %}
+    <div class="card shadow-sm mb-3 {% if inativo %}opacity-50{% endif %}">
+        <div class="card-body card-familia d-flex align-items-start gap-4 py-3">
+
+            <!-- ÍCONE -->
+            <div class="flex-shrink-0">
+                <div class="rounded-circle border bg-light text-secondary"
+                     style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-house fa-xl" style="color: #A32D2D;"></i>
+                </div>
+            </div>
+
+            <!-- DADOS -->
+            <div class="flex-grow-1">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <h5 class="mb-0 fw-bold">{{ f.nome_responsavel }}</h5>
+                    {% if f.status == 'ativa' %}
+                        <span class="badge bg-success">Ativa</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inativa</span>
+                    {% endif %}
+                </div>
+
+                <div class="row row-cols-2 row-cols-md-4 g-2">
+                    <div class="col">
+                        <small class="text-muted d-block">CPF</small>
+                        <span class="small">{{ f.cpf_responsavel or '-' }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Telefone 1</small>
+                        <span class="small">{{ f.telefone_principal or '-' }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Telefone 2</small>
+                        <span class="small">{{ f.telefone_secundario or '-' }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Cadastro</small>
+                        <span class="small">{{ f.data_cadastro.strftime('%d/%m/%Y') if f.data_cadastro else '-' }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Endereço</small>
+                        <span class="small">{{ f.endereco }}, {{ f.numero }}{% if f.complemento %} – {{ f.complemento }}{% endif %}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Bairro / Cidade</small>
+                        <span class="small">{{ f.bairro }} – {{ f.cidade }}</span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Pessoas / Crianças</small>
+                        <span class="small">
+                            {{ f.quantidade_moradores or '-' }} / {{ f.quantidade_criancas or '-' }}
+                        </span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Vicentino</small>
+                        <span class="small">
+                            {% if f.vicentino %}
+                                {{ f.vicentino.nome }} {{ f.vicentino.sobrenome }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted d-block">Conferência</small>
+                        <span class="small">{{ f.conferencia_rel.nome if f.conferencia_rel else '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AÇÕES -->
+            <div class="acoes-familia flex-shrink-0 d-flex flex-column gap-2">
+                <a href="{{ url_for('editar_familia', familia_id=f.id) }}"
+                   class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-edit me-1"></i> Editar
+                </a>
+                <form method="POST"
+                      action="{{ url_for('toggle_status_familia', familia_id=f.id) }}"
+                      onsubmit="return confirm('{% if f.status == 'inativa' %}Reativar família de {{ f.nome_responsavel }}?{% else %}Inativar família de {{ f.nome_responsavel }}?{% endif %}')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% if f.status == 'inativa' %}
+                        <button type="submit" class="btn btn-sm btn-outline-success w-100">
+                            <i class="fas fa-rotate-left me-1"></i> Reativar
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                            <i class="fas fa-ban me-1"></i> Inativar
+                        </button>
+                    {% endif %}
+                </form>
+            </div>
+
+        </div>
+    </div>
+    {% endmacro %}
+
+    <!-- ATIVAS -->
+    {% if ativas %}
+        {% for f in ativas %}
+            {{ card_familia(f) }}
+        {% endfor %}
+    {% elif not inativas %}
+        <div class="text-center text-muted py-5">
+            <i class="fas fa-house-circle-xmark fa-3x mb-3"></i>
+            <p class="mb-0">Nenhuma família encontrada.</p>
+        </div>
+    {% endif %}
+
+    <!-- INATIVAS -->
+    {% if inativas %}
+        <div class="d-flex align-items-center gap-3 my-4">
+            <hr class="flex-grow-1">
+            <span class="text-muted fw-semibold small text-uppercase">
+                <i class="fas fa-ban me-1"></i> Inativas ({{ inativas|length }})
+            </span>
+            <hr class="flex-grow-1">
+        </div>
+
+        {% for f in inativas %}
+            {{ card_familia(f, inativo=true) }}
+        {% endfor %}
+    {% endif %}
+
+</div>
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('.select2').select2({
+        placeholder: "Buscar...",
+        allowClear: true,
+        width: '100%'
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %}

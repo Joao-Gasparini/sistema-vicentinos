@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card shadow">
+            <div class="card-header text-white" style="background-color: #0064b6;">
+                <h4 class="mb-0"><i class="fas fa-pen me-2"></i>Editar Família — {{ familia.nome_responsavel }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="form-familia">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="conferencia_id" id="conferencia_id_hidden"
+                           value="{{ familia.conferencia_id or '' }}">
+
+                    <!-- RESPONSÁVEL -->
+                    <h6 class="text-muted text-uppercase mb-3 mt-1" style="font-size: 0.75rem; letter-spacing: 0.08em;">Dados do Responsável</h6>
+
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Nome do Responsável *</label>
+                            <input type="text" name="nome_responsavel" class="form-control" required
+                                   value="{{ familia.nome_responsavel }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">CPF do Responsável</label>
+                            <input type="text" name="cpf_responsavel" id="cpf_responsavel" class="form-control"
+                                   maxlength="14" inputmode="numeric" placeholder="000.000.000-00"
+                                   value="{{ familia.cpf_responsavel or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Telefone 1</label>
+                            <input type="text" name="telefone_principal" id="telefone1" class="form-control"
+                                   maxlength="15" inputmode="numeric" placeholder="(00) 00000-0000"
+                                   value="{{ familia.telefone_principal or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Telefone 2</label>
+                            <input type="text" name="telefone_secundario" id="telefone2" class="form-control"
+                                   maxlength="15" inputmode="numeric" placeholder="(00) 00000-0000"
+                                   value="{{ familia.telefone_secundario or '' }}">
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- ENDEREÇO -->
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 0.08em;">Endereço</h6>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">CEP</label>
+                            <input type="text" name="cep" id="cep" class="form-control"
+                                   maxlength="9" inputmode="numeric" placeholder="00000-000"
+                                   value="{{ familia.cep or '' }}">
+                            <div class="form-text" id="cep-status"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Rua / Logradouro *</label>
+                            <input type="text" name="endereco" id="endereco" class="form-control" required
+                                   value="{{ familia.endereco }}">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Número *</label>
+                            <input type="text" name="numero" class="form-control" required
+                                   value="{{ familia.numero }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Complemento</label>
+                            <input type="text" name="complemento" class="form-control"
+                                   placeholder="Apto, Bloco, etc."
+                                   value="{{ familia.complemento or '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Bairro *</label>
+                            <input type="text" name="bairro" id="bairro" class="form-control" required
+                                   value="{{ familia.bairro }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Cidade *</label>
+                            <input type="text" name="cidade" id="cidade" class="form-control" required
+                                   value="{{ familia.cidade }}">
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- COMPOSIÇÃO DA FAMÍLIA -->
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 0.08em;">Composição da Família</h6>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Nº de Pessoas na Casa</label>
+                            <input type="number" name="quantidade_moradores" class="form-control"
+                                   min="1" max="99"
+                                   value="{{ familia.quantidade_moradores or '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Nº de Crianças (0–12 anos)</label>
+                            <input type="number" name="quantidade_criancas" class="form-control"
+                                   min="0" max="99"
+                                   value="{{ familia.quantidade_criancas or '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Situação</label>
+                            <select name="status" class="form-select">
+                                <option value="ativa"   {% if familia.status == 'ativa'   %}selected{% endif %}>Ativa</option>
+                                <option value="inativa" {% if familia.status == 'inativa' %}selected{% endif %}>Inativa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- VÍNCULO -->
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 0.08em;">Vínculo</h6>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Vicentino Responsável *</label>
+                            <select name="vicentino_id" id="vicentino_id" class="form-select select2" required>
+                                <option value="">Selecione um vicentino...</option>
+                                {% for v in vicentinos %}
+                                    <option value="{{ v.id }}"
+                                        {% if familia.vicentino_id == v.id %}selected{% endif %}>
+                                        {{ v.nome }} {{ v.sobrenome }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Conferência Responsável</label>
+                            <input type="text" id="conferencia_nome" class="form-control bg-light" readonly
+                                   value="{{ familia.conferencia_rel.nome if familia.conferencia_rel else '' }}"
+                                   placeholder="Preenchido automaticamente ao selecionar o vicentino">
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- OBSERVAÇÕES -->
+                    <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 0.08em;">Observações</h6>
+
+                    <div class="mb-4">
+                        <textarea name="observacoes" class="form-control" rows="3"
+                                  placeholder="Informações adicionais sobre a família...">{{ familia.observacoes or '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn text-white" style="background-color: #0064b6;">
+                            <i class="fas fa-save me-1"></i> Salvar Alterações
+                        </button>
+                        <a href="{{ url_for('listar_familias') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .select2-container--default .select2-selection--single {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 1.5;
+        padding-left: 0;
+        color: #212529;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: calc(1.5em + 0.75rem + 2px);
+    }
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6c757d;
+    }
+</style>
+<script>
+const VICENTINOS = {{ vicentinos_data | safe }};
+
+$(document).ready(function () {
+
+    $('#vicentino_id').select2({
+        placeholder: "Digite para buscar...",
+        allowClear: true,
+        width: '100%'
+    });
+
+    function preencherConferencia(id) {
+        const v = VICENTINOS.find(x => x.id === parseInt(id));
+        if (v) {
+            $('#conferencia_nome').val(v.conferencia_nome || 'Sem conferência');
+            $('#conferencia_id_hidden').val(v.conferencia_id || '');
+        } else {
+            $('#conferencia_nome').val('');
+            $('#conferencia_id_hidden').val('');
+        }
+    }
+
+    // Mantém conferência do vicentino já selecionado ao carregar
+    const vicentinoInicial = $('#vicentino_id').val();
+    if (vicentinoInicial) preencherConferencia(vicentinoInicial);
+
+    $('#vicentino_id').on('change', function () {
+        preencherConferencia($(this).val());
+    });
+
+    // CEP → ViaCEP
+    $('#cep').on('blur', function () {
+        const cep = this.value.replace(/\D/g, '');
+        const status = document.getElementById('cep-status');
+        if (cep.length !== 8) return;
+        status.textContent = 'Buscando...';
+        status.className = 'form-text text-muted';
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.erro) { status.textContent = 'CEP não encontrado.'; status.className = 'form-text text-danger'; return; }
+                if (data.logradouro) document.getElementById('endereco').value = data.logradouro;
+                if (data.bairro)     document.getElementById('bairro').value   = data.bairro;
+                if (data.localidade) document.getElementById('cidade').value   = data.localidade;
+                status.textContent = 'Endereço preenchido automaticamente.';
+                status.className = 'form-text text-success';
+            })
+            .catch(() => { status.textContent = 'Erro ao consultar CEP.'; status.className = 'form-text text-danger'; });
+    });
+
+    $('#cep').on('input', function () {
+        let v = this.value.replace(/\D/g, '').slice(0, 8);
+        if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+        this.value = v;
+    });
+});
+
+function mascaraCPF(valor) {
+    valor = valor.replace(/\D/g, '').slice(0, 11);
+    valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+    valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+    valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    return valor;
+}
+document.getElementById('cpf_responsavel').addEventListener('input', function () {
+    this.value = mascaraCPF(this.value);
+});
+
+function mascaraTelefone(valor) {
+    valor = valor.replace(/\D/g, '').slice(0, 11);
+    if (valor.length <= 10) {
+        valor = valor.replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2');
+    } else {
+        valor = valor.replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2');
+    }
+    return valor;
+}
+document.getElementById('telefone1').addEventListener('input', function () { this.value = mascaraTelefone(this.value); });
+document.getElementById('telefone2').addEventListener('input', function () { this.value = mascaraTelefone(this.value); });
+</script>
+{% endblock %}
