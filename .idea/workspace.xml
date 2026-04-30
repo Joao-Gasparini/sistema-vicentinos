@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="templates do usuario criados &quot;minhas famílias&quot;, &quot;meus atendimentos&quot; e registrar novo atendimento&quot;">
+    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="  - Meus atendimentos: endereço completo (rua, número, complemento, bairro, cidade) aparece logo abaixo da data em cada card&#10;  - Admin — Atendimentos: endereço adicionado nas informações da família, e o vicentino saiu do bloco de dados e foi para um rodapé separado por uma linha fina, com o texto &quot;Atendimento realizado por João Otávio&quot; à esquerda e &#10;  a data de registro à direita — deixando claro que é informação do registro, não da família">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/meus_atendimentos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/meus_atendimentos.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/fotos_perfil/vicentino_2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin_atendimentos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_atendimentos.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/dashboard.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -293,7 +294,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777575895079</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="  - Meus atendimentos: endereço completo (rua, número, complemento, bairro, cidade) aparece logo abaixo da data em cada card&#10;  - Admin — Atendimentos: endereço adicionado nas informações da família, e o vicentino saiu do bloco de dados e foi para um rodapé separado por uma linha fina, com o texto &quot;Atendimento realizado por João Otávio&quot; à esquerda e &#10;  a data de registro à direita — deixando claro que é informação do registro, não da família">
+      <option name="closed" value="true" />
+      <created>1777577077447</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1777577077447</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -325,6 +334,7 @@
     <MESSAGE value="adicione tres botões no cabeçalho para o usuario normal, início, Minhas famílias e Meus atendimentos" />
     <MESSAGE value="Nova tela &quot;Registrar novo atendimento&quot;" />
     <MESSAGE value="templates do usuario criados &quot;minhas famílias&quot;, &quot;meus atendimentos&quot; e registrar novo atendimento&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="templates do usuario criados &quot;minhas famílias&quot;, &quot;meus atendimentos&quot; e registrar novo atendimento&quot;" />
+    <MESSAGE value="  - Meus atendimentos: endereço completo (rua, número, complemento, bairro, cidade) aparece logo abaixo da data em cada card&#10;  - Admin — Atendimentos: endereço adicionado nas informações da família, e o vicentino saiu do bloco de dados e foi para um rodapé separado por uma linha fina, com o texto &quot;Atendimento realizado por João Otávio&quot; à esquerda e &#10;  a data de registro à direita — deixando claro que é informação do registro, não da família" />
+    <option name="LAST_COMMIT_MESSAGE" value="  - Meus atendimentos: endereço completo (rua, número, complemento, bairro, cidade) aparece logo abaixo da data em cada card&#10;  - Admin — Atendimentos: endereço adicionado nas informações da família, e o vicentino saiu do bloco de dados e foi para um rodapé separado por uma linha fina, com o texto &quot;Atendimento realizado por João Otávio&quot; à esquerda e &#10;  a data de registro à direita — deixando claro que é informação do registro, não da família" />
   </component>
 </project>

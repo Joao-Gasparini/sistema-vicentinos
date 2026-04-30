@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
@@ -18,6 +18,19 @@ import phonenumbers
 import time
 import re
 import os
+import io
+
+import csv
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import cm
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as RLImage
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 
 from config import Config
 from models import db, Vicentino, Conselho, Conferencia, Familia, Atendimento
@@ -1260,15 +1273,408 @@ def admin_atendimentos():
         .order_by(Atendimento.data_atendimento.desc(), Atendimento.horario.desc())
         .all()
     )
-    vicentinos = Vicentino.query.filter_by(tipo='vicentino', status='ativo').order_by(Vicentino.nome).all()
-    familias   = Familia.query.order_by(Familia.nome_responsavel).all()
+    vicentinos   = Vicentino.query.filter_by(tipo='vicentino', status='ativo').order_by(Vicentino.nome).all()
+    familias     = Familia.query.order_by(Familia.nome_responsavel).all()
+    conferencias = Conferencia.query.order_by(Conferencia.nome).all()
 
     return render_template(
         'admin_atendimentos.html',
         atendimentos=atendimentos,
         vicentinos=vicentinos,
         familias=familias,
+        conferencias=conferencias,
     )
+
+
+@app.route('/admin/atendimentos/relatorio')
+@admin_required
+def relatorio_atendimentos():
+    """Gera PDF de atendimentos com filtros independentes da listagem."""
+    vicentino_raw    = request.args.get('rel_vicentino_id', '')
+    conferencia_raw  = request.args.get('rel_conferencia_id', '')
+    familia_raw      = request.args.get('rel_familia_id', '')
+    data_inicio      = request.args.get('rel_data_inicio', '')
+    data_fim         = request.args.get('rel_data_fim', '')
+
+    query = Atendimento.query.join(Familia)
+
+    if vicentino_raw:
+        try:
+            query = query.filter(Atendimento.vicentino_id == int(vicentino_raw))
+        except (ValueError, TypeError):
+            pass
+
+    if conferencia_raw:
+        try:
+            query = query.filter(Familia.conferencia_id == int(conferencia_raw))
+        except (ValueError, TypeError):
+            pass
+
+    if familia_raw:
+        try:
+            query = query.filter(Atendimento.familia_id == int(familia_raw))
+        except (ValueError, TypeError):
+            pass
+
+    if data_inicio:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento >= datetime.strptime(data_inicio, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+
+    if data_fim:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento <= datetime.strptime(data_fim, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+
+    atendimentos = (
+        query
+        .order_by(Atendimento.data_atendimento.desc(), Atendimento.horario.desc())
+        .all()
+    )
+
+    # Nomes para exibir no cabeçalho do PDF
+    label_vicentino   = ''
+    label_conferencia = ''
+    label_familia     = ''
+    if vicentino_raw:
+        v = Vicentino.query.get(int(vicentino_raw))
+        if v:
+            label_vicentino = f"{v.nome} {v.sobrenome}"
+    if conferencia_raw:
+        c = Conferencia.query.get(int(conferencia_raw))
+        if c:
+            label_conferencia = c.nome
+    if familia_raw:
+        f = Familia.query.get(int(familia_raw))
+        if f:
+            label_familia = f.nome_responsavel
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        leftMargin=2*cm, rightMargin=2*cm,
+        topMargin=2*cm, bottomMargin=2*cm,
+    )
+
+    styles = getSampleStyleSheet()
+    style_title   = ParagraphStyle('title', fontSize=14, fontName='Helvetica-Bold',
+                                   alignment=TA_CENTER, spaceAfter=4)
+    style_sub     = ParagraphStyle('sub', fontSize=9, fontName='Helvetica',
+                                   alignment=TA_CENTER, textColor=colors.grey, spaceAfter=2)
+    style_filtros = ParagraphStyle('filtros', fontSize=8, fontName='Helvetica',
+                                   alignment=TA_CENTER, textColor=colors.HexColor('#444444'), spaceAfter=2)
+    style_cell    = ParagraphStyle('cell', fontSize=8, fontName='Helvetica', leading=11)
+    style_bold    = ParagraphStyle('bold', fontSize=8, fontName='Helvetica-Bold', leading=11)
+
+    elements = []
+
+    logo_path = os.path.join(app.static_folder, 'vicentino_2.jpg')
+    if os.path.exists(logo_path):
+        elements.append(RLImage(logo_path, width=3*cm, height=3*cm))
+        elements.append(Spacer(1, 0.3*cm))
+
+    elements.append(Paragraph('Relatório de Atendimentos', style_title))
+    elements.append(Paragraph('Sociedade de São Vicente de Paulo', style_sub))
+    elements.append(Spacer(1, 0.2*cm))
+
+    # Filtros aplicados
+    linhas_filtro = []
+    if data_inicio or data_fim:
+        periodo = ''
+        if data_inicio:
+            periodo += f"De {datetime.strptime(data_inicio, '%Y-%m-%d').strftime('%d/%m/%Y')}"
+        if data_fim:
+            periodo += f"  até  {datetime.strptime(data_fim, '%Y-%m-%d').strftime('%d/%m/%Y')}"
+        linhas_filtro.append(f"Período: {periodo.strip()}")
+    if label_vicentino:
+        linhas_filtro.append(f"Vicentino: {label_vicentino}")
+    if label_conferencia:
+        linhas_filtro.append(f"Conferência: {label_conferencia}")
+    if label_familia:
+        linhas_filtro.append(f"Família: {label_familia}")
+
+    if linhas_filtro:
+        elements.append(Paragraph(' · '.join(linhas_filtro), style_filtros))
+
+    elements.append(Paragraph(
+        f"Gerado em {datetime.now().strftime('%d/%m/%Y às %H:%M')} · {len(atendimentos)} atendimento(s)",
+        style_sub
+    ))
+    elements.append(Spacer(1, 0.5*cm))
+
+    if not atendimentos:
+        elements.append(Paragraph('Nenhum atendimento encontrado para os filtros selecionados.', styles['Normal']))
+    else:
+        header = [
+            Paragraph('Família / Endereço', style_bold),
+            Paragraph('Data / Horário', style_bold),
+            Paragraph('Vicentino', style_bold),
+            Paragraph('Descrição', style_bold),
+            Paragraph('Itens doados', style_bold),
+        ]
+        rows = [header]
+
+        for a in atendimentos:
+            endereco = f"{a.familia.endereco}, {a.familia.numero}"
+            if a.familia.complemento:
+                endereco += f" – {a.familia.complemento}"
+            endereco += f"\n{a.familia.bairro}, {a.familia.cidade}"
+
+            data_hora = a.data_atendimento.strftime('%d/%m/%Y')
+            if a.horario:
+                data_hora += f"\n{a.horario.strftime('%H:%M')}"
+
+            rows.append([
+                Paragraph(f"<b>{a.familia.nome_responsavel}</b>\n{endereco}", style_cell),
+                Paragraph(data_hora, style_cell),
+                Paragraph(f"{a.vicentino.nome} {a.vicentino.sobrenome}", style_cell),
+                Paragraph(a.descricao or '—', style_cell),
+                Paragraph(a.itens_doados or '—', style_cell),
+            ])
+
+        col_widths = [4.5*cm, 2.5*cm, 3.5*cm, 4.5*cm, 3.5*cm]
+        table = Table(rows, colWidths=col_widths, repeatRows=1)
+        table.setStyle(TableStyle([
+            ('BACKGROUND',     (0, 0), (-1, 0),  colors.HexColor('#0064B6')),
+            ('TEXTCOLOR',      (0, 0), (-1, 0),  colors.white),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F0F7FF')]),
+            ('GRID',           (0, 0), (-1, -1), 0.4, colors.HexColor('#CCCCCC')),
+            ('VALIGN',         (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING',    (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING',   (0, 0), (-1, -1), 5),
+            ('TOPPADDING',     (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING',  (0, 0), (-1, -1), 5),
+        ]))
+        elements.append(table)
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    response = make_response(buffer.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = (
+        f'attachment; filename="relatorio_atendimentos_{datetime.now().strftime("%Y%m%d_%H%M")}.pdf"'
+    )
+    return response
+
+
+@app.route('/admin/atendimentos/relatorio/excel')
+@admin_required
+def relatorio_atendimentos_excel():
+    """Gera Excel de atendimentos com os mesmos filtros do relatório PDF."""
+    vicentino_raw   = request.args.get('rel_vicentino_id', '')
+    conferencia_raw = request.args.get('rel_conferencia_id', '')
+    familia_raw     = request.args.get('rel_familia_id', '')
+    data_inicio     = request.args.get('rel_data_inicio', '')
+    data_fim        = request.args.get('rel_data_fim', '')
+
+    query = Atendimento.query.join(Familia)
+
+    if vicentino_raw:
+        try:
+            query = query.filter(Atendimento.vicentino_id == int(vicentino_raw))
+        except (ValueError, TypeError):
+            pass
+    if conferencia_raw:
+        try:
+            query = query.filter(Familia.conferencia_id == int(conferencia_raw))
+        except (ValueError, TypeError):
+            pass
+    if familia_raw:
+        try:
+            query = query.filter(Atendimento.familia_id == int(familia_raw))
+        except (ValueError, TypeError):
+            pass
+    if data_inicio:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento >= datetime.strptime(data_inicio, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+    if data_fim:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento <= datetime.strptime(data_fim, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+
+    atendimentos = (
+        query
+        .order_by(Atendimento.data_atendimento.desc(), Atendimento.horario.desc())
+        .all()
+    )
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Atendimentos'
+
+    azul        = '0064B6'
+    azul_claro  = 'E8F1FB'
+    branco      = 'FFFFFF'
+    cinza_borda = 'CCCCCC'
+
+    borda = Border(
+        left=Side(style='thin', color=cinza_borda),
+        right=Side(style='thin', color=cinza_borda),
+        top=Side(style='thin', color=cinza_borda),
+        bottom=Side(style='thin', color=cinza_borda),
+    )
+
+    # Título
+    ws.merge_cells('A1:G1')
+    ws['A1'] = 'Relatório de Atendimentos — SSVP'
+    ws['A1'].font      = Font(bold=True, size=14, color=azul)
+    ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
+    ws.row_dimensions[1].height = 28
+
+    ws.merge_cells('A2:G2')
+    ws['A2'] = f"Gerado em {datetime.now().strftime('%d/%m/%Y às %H:%M')} · {len(atendimentos)} atendimento(s)"
+    ws['A2'].font      = Font(size=9, color='888888')
+    ws['A2'].alignment = Alignment(horizontal='center')
+    ws.row_dimensions[2].height = 16
+
+    # Cabeçalho da tabela
+    cabecalhos = ['Família', 'Endereço', 'Bairro / Cidade', 'Conferência', 'Data', 'Horário', 'Vicentino', 'Descrição', 'Itens Doados']
+    ws.append([])  # linha 3 vazia
+    ws.append(cabecalhos)  # linha 4
+
+    for col_idx, titulo in enumerate(cabecalhos, start=1):
+        cell = ws.cell(row=4, column=col_idx)
+        cell.font      = Font(bold=True, color=branco, size=10)
+        cell.fill      = PatternFill(fill_type='solid', fgColor=azul)
+        cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        cell.border    = borda
+    ws.row_dimensions[4].height = 20
+
+    # Dados
+    for i, a in enumerate(atendimentos):
+        endereco = f"{a.familia.endereco}, {a.familia.numero}"
+        if a.familia.complemento:
+            endereco += f" – {a.familia.complemento}"
+
+        linha = [
+            a.familia.nome_responsavel,
+            endereco,
+            f"{a.familia.bairro} – {a.familia.cidade}",
+            a.familia.conferencia_rel.nome if a.familia.conferencia_rel else '',
+            a.data_atendimento.strftime('%d/%m/%Y'),
+            a.horario.strftime('%H:%M') if a.horario else '',
+            f"{a.vicentino.nome} {a.vicentino.sobrenome}",
+            a.descricao or '',
+            a.itens_doados or '',
+        ]
+        row_num = 5 + i
+        ws.append(linha)
+        fill_color = branco if i % 2 == 0 else azul_claro
+        for col_idx in range(1, len(cabecalhos) + 1):
+            cell = ws.cell(row=row_num, column=col_idx)
+            cell.fill      = PatternFill(fill_type='solid', fgColor=fill_color)
+            cell.alignment = Alignment(vertical='top', wrap_text=True)
+            cell.border    = borda
+        ws.row_dimensions[row_num].height = 40
+
+    # Largura das colunas
+    larguras = [28, 30, 25, 22, 12, 10, 25, 40, 35]
+    for col_idx, largura in enumerate(larguras, start=1):
+        ws.column_dimensions[get_column_letter(col_idx)].width = largura
+
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    response = make_response(buffer.read())
+    response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    response.headers['Content-Disposition'] = (
+        f'attachment; filename="relatorio_atendimentos_{datetime.now().strftime("%Y%m%d_%H%M")}.xlsx"'
+    )
+    return response
+
+
+@app.route('/admin/atendimentos/relatorio/csv')
+@admin_required
+def relatorio_atendimentos_csv():
+    """Gera CSV de atendimentos com os mesmos filtros do relatório."""
+    vicentino_raw   = request.args.get('rel_vicentino_id', '')
+    conferencia_raw = request.args.get('rel_conferencia_id', '')
+    familia_raw     = request.args.get('rel_familia_id', '')
+    data_inicio     = request.args.get('rel_data_inicio', '')
+    data_fim        = request.args.get('rel_data_fim', '')
+
+    query = Atendimento.query.join(Familia)
+
+    if vicentino_raw:
+        try:
+            query = query.filter(Atendimento.vicentino_id == int(vicentino_raw))
+        except (ValueError, TypeError):
+            pass
+    if conferencia_raw:
+        try:
+            query = query.filter(Familia.conferencia_id == int(conferencia_raw))
+        except (ValueError, TypeError):
+            pass
+    if familia_raw:
+        try:
+            query = query.filter(Atendimento.familia_id == int(familia_raw))
+        except (ValueError, TypeError):
+            pass
+    if data_inicio:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento >= datetime.strptime(data_inicio, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+    if data_fim:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento <= datetime.strptime(data_fim, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+
+    atendimentos = (
+        query
+        .order_by(Atendimento.data_atendimento.desc(), Atendimento.horario.desc())
+        .all()
+    )
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, delimiter=';')
+
+    writer.writerow(['Família', 'Endereço', 'Bairro / Cidade', 'Conferência',
+                     'Data', 'Horário', 'Vicentino', 'Descrição', 'Itens Doados'])
+
+    for a in atendimentos:
+        endereco = f"{a.familia.endereco}, {a.familia.numero}"
+        if a.familia.complemento:
+            endereco += f" – {a.familia.complemento}"
+        writer.writerow([
+            a.familia.nome_responsavel,
+            endereco,
+            f"{a.familia.bairro} – {a.familia.cidade}",
+            a.familia.conferencia_rel.nome if a.familia.conferencia_rel else '',
+            a.data_atendimento.strftime('%d/%m/%Y'),
+            a.horario.strftime('%H:%M') if a.horario else '',
+            f"{a.vicentino.nome} {a.vicentino.sobrenome}",
+            a.descricao or '',
+            a.itens_doados or '',
+        ])
+
+    response = make_response('﻿' + buffer.getvalue())
+    response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+    response.headers['Content-Disposition'] = (
+        f'attachment; filename="relatorio_atendimentos_{datetime.now().strftime("%Y%m%d_%H%M")}.csv"'
+    )
+    return response
 
 
 # =============================

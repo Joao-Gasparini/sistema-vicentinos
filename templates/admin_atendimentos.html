@@ -5,9 +5,12 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="mb-0">Atendimentos Realizados</h3>
+        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalRelatorio">
+            Gerar Relatório
+        </button>
     </div>
 
-    <!-- FILTROS -->
+    <!-- FILTROS DA LISTAGEM -->
     <form method="GET" class="card shadow-sm p-3 mb-4">
         <div class="row g-2 mb-2">
 
@@ -153,4 +156,171 @@
     {% endif %}
 
 </div>
+
+<!-- MODAL GERAR RELATÓRIO -->
+<div class="modal fade" id="modalRelatorio" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-alt me-2"></i> Gerar Relatório
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- PASSO 1: escolha do formato -->
+                <div id="passo1">
+                    <p class="text-muted small mb-3">Escolha o formato do relatório:</p>
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <button type="button" class="btn-formato w-100 p-4 border rounded-3 text-center"
+                                    onclick="escolherFormato('pdf')">
+                                <i class="fas fa-file-pdf fa-2x text-danger mb-2 d-block"></i>
+                                <span class="fw-semibold d-block">PDF</span>
+                                <small class="text-muted">Documento formatado para impressão</small>
+                            </button>
+                        </div>
+
+                        <div class="col-md-6">
+                            <button type="button" class="btn-formato w-100 p-4 border rounded-3 text-center"
+                                    onclick="escolherFormato('excel')">
+                                <i class="fas fa-file-excel fa-2x text-success mb-2 d-block"></i>
+                                <span class="fw-semibold d-block">Excel</span>
+                                <small class="text-muted">Planilha para análise e edição</small>
+                            </button>
+                        </div>
+
+                        <div class="col-md-6">
+                            <button type="button" class="btn-formato w-100 p-4 border rounded-3 text-center"
+                                    onclick="escolherFormato('csv')">
+                                <i class="fas fa-file-csv fa-2x text-secondary mb-2 d-block"></i>
+                                <span class="fw-semibold d-block">CSV</span>
+                                <small class="text-muted">Compatível com qualquer planilha</small>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- PASSO 2: parâmetros -->
+                <div id="passo2" style="display:none;">
+
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="voltarFormato()">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <span class="fw-semibold" id="labelFormato"></span>
+                    </div>
+
+                    <p class="text-muted small mb-3">Todos os filtros são opcionais — deixe em branco para incluir todos.</p>
+
+                    <form id="formRelatorio" method="GET" target="_blank">
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Período — Data início</label>
+                                <input type="date" name="rel_data_inicio" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Período — Data fim</label>
+                                <input type="date" name="rel_data_fim" class="form-control">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Vicentino</label>
+                                <select name="rel_vicentino_id" class="form-select">
+                                    <option value="">Todos os vicentinos</option>
+                                    {% for v in vicentinos %}
+                                        <option value="{{ v.id }}">{{ v.nome }} {{ v.sobrenome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Conferência</label>
+                                <select name="rel_conferencia_id" class="form-select">
+                                    <option value="">Todas as conferências</option>
+                                    {% for c in conferencias %}
+                                        <option value="{{ c.id }}">{{ c.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Família específica</label>
+                                <select name="rel_familia_id" class="form-select">
+                                    <option value="">Todas as famílias</option>
+                                    {% for f in familias %}
+                                        <option value="{{ f.id }}">{{ f.nome_responsavel }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary" id="btnBaixar">
+                                <i class="fas fa-download me-1"></i> Baixar
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const urlPdf   = "{{ url_for('relatorio_atendimentos') }}";
+    const urlExcel = "{{ url_for('relatorio_atendimentos_excel') }}";
+    const urlCsv   = "{{ url_for('relatorio_atendimentos_csv') }}";
+
+    function escolherFormato(formato) {
+        document.getElementById('passo1').style.display = 'none';
+        document.getElementById('passo2').style.display = 'block';
+
+        const urls = { pdf: urlPdf, excel: urlExcel, csv: urlCsv };
+        document.getElementById('formRelatorio').action = urls[formato];
+
+        const icones = {
+            pdf:   '<i class="fas fa-file-pdf text-danger me-2"></i>Relatório em PDF',
+            excel: '<i class="fas fa-file-excel text-success me-2"></i>Relatório em Excel',
+            csv:   '<i class="fas fa-file-csv text-secondary me-2"></i>Relatório em CSV',
+        };
+        document.getElementById('labelFormato').innerHTML = icones[formato];
+    }
+
+    function voltarFormato() {
+        document.getElementById('passo2').style.display = 'none';
+        document.getElementById('passo1').style.display = 'block';
+    }
+
+    document.getElementById('modalRelatorio').addEventListener('hidden.bs.modal', function () {
+        voltarFormato();
+    });
+</script>
+
+<style>
+    .btn-formato {
+        background: white;
+        cursor: pointer;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .btn-formato:hover {
+        border-color: #0064B6 !important;
+        box-shadow: 0 0 0 3px rgba(0,100,182,0.15);
+    }
+</style>
 {% endblock %}
