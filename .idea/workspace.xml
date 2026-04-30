@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="Geração de relatórios de atendimentos em PDF, EXCEL e CSV OK">
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin_cadastrar_familia.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_cadastrar_familia.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin_editar_familia.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_editar_familia.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin_familias.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_familias.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/minhas_familias.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/minhas_familias.html" afterDir="false" />
-    </list>
+    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="informação de ultima visita feita a família, campo de quantos adolescentes tem na família." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -319,7 +312,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777580499613</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="informação de ultima visita feita a família, campo de quantos adolescentes tem na família.">
+      <option name="closed" value="true" />
+      <created>1777581051061</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1777581051062</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -353,6 +354,7 @@
     <MESSAGE value="templates do usuario criados &quot;minhas famílias&quot;, &quot;meus atendimentos&quot; e registrar novo atendimento&quot;" />
     <MESSAGE value="  - Meus atendimentos: endereço completo (rua, número, complemento, bairro, cidade) aparece logo abaixo da data em cada card&#10;  - Admin — Atendimentos: endereço adicionado nas informações da família, e o vicentino saiu do bloco de dados e foi para um rodapé separado por uma linha fina, com o texto &quot;Atendimento realizado por João Otávio&quot; à esquerda e &#10;  a data de registro à direita — deixando claro que é informação do registro, não da família" />
     <MESSAGE value="Geração de relatórios de atendimentos em PDF, EXCEL e CSV OK" />
-    <option name="LAST_COMMIT_MESSAGE" value="Geração de relatórios de atendimentos em PDF, EXCEL e CSV OK" />
+    <MESSAGE value="informação de ultima visita feita a família, campo de quantos adolescentes tem na família." />
+    <option name="LAST_COMMIT_MESSAGE" value="informação de ultima visita feita a família, campo de quantos adolescentes tem na família." />
   </component>
 </project>
