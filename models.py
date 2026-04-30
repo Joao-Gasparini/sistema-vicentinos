@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, date
 
 db = SQLAlchemy()
 
@@ -86,8 +86,9 @@ class Familia(db.Model):
     estado = db.Column(db.String(2), nullable=True)
     cep = db.Column(db.String(10))
     ponto_referencia = db.Column(db.String(150))
-    quantidade_moradores = db.Column(db.Integer)
-    quantidade_criancas = db.Column(db.Integer)
+    quantidade_moradores    = db.Column(db.Integer)
+    quantidade_criancas     = db.Column(db.Integer)
+    quantidade_adolescentes = db.Column(db.Integer)
     observacoes = db.Column(db.Text)
     status = db.Column(db.String(10), default='ativa')
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
@@ -97,6 +98,18 @@ class Familia(db.Model):
 
     conferencia_rel = db.relationship('Conferencia')
     atendimentos = db.relationship('Atendimento', backref='familia', lazy=True)
+
+    @property
+    def ultima_visita(self):
+        if not self.atendimentos:
+            return None
+        return max(self.atendimentos, key=lambda a: a.data_atendimento).data_atendimento
+
+    @property
+    def dias_desde_ultima_visita(self):
+        if self.ultima_visita is None:
+            return None
+        return (date.today() - self.ultima_visita).days
 
 
 # =========================

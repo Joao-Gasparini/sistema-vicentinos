@@ -589,11 +589,12 @@ def cadastrar_familia():
         cidade           = request.form.get('cidade', '').strip()
         estado           = request.form.get('estado', '').strip().upper()
         cep              = request.form.get('cep', '').strip()
-        qtd_moradores    = request.form.get('quantidade_moradores', '').strip()
-        qtd_criancas     = request.form.get('quantidade_criancas', '').strip()
-        vicentino_id     = request.form.get('vicentino_id', '').strip()
-        conferencia_id   = request.form.get('conferencia_id', '').strip() or None
-        observacoes      = request.form.get('observacoes', '').strip()
+        qtd_moradores       = request.form.get('quantidade_moradores', '').strip()
+        qtd_criancas        = request.form.get('quantidade_criancas', '').strip()
+        qtd_adolescentes    = request.form.get('quantidade_adolescentes', '').strip()
+        vicentino_id        = request.form.get('vicentino_id', '').strip()
+        conferencia_id      = request.form.get('conferencia_id', '').strip() or None
+        observacoes         = request.form.get('observacoes', '').strip()
 
         form_data = dict(
             nome_responsavel=nome_responsavel, cpf_responsavel=cpf_input,
@@ -601,6 +602,7 @@ def cadastrar_familia():
             endereco=endereco, numero=numero, complemento=complemento,
             bairro=bairro, cidade=cidade, estado=estado, cep=cep,
             quantidade_moradores=qtd_moradores, quantidade_criancas=qtd_criancas,
+            quantidade_adolescentes=qtd_adolescentes,
             vicentino_id=vicentino_id, conferencia_id=conferencia_id,
             observacoes=observacoes,
         )
@@ -638,8 +640,9 @@ def cadastrar_familia():
             cidade            = cidade,
             estado            = estado or None,
             cep               = cep or None,
-            quantidade_moradores = int(qtd_moradores) if qtd_moradores.isdigit() else None,
-            quantidade_criancas  = int(qtd_criancas)  if qtd_criancas.isdigit()  else None,
+            quantidade_moradores    = int(qtd_moradores)    if qtd_moradores.isdigit()    else None,
+            quantidade_criancas     = int(qtd_criancas)     if qtd_criancas.isdigit()     else None,
+            quantidade_adolescentes = int(qtd_adolescentes) if qtd_adolescentes.isdigit() else None,
             vicentino_id      = int(vicentino_id),
             conferencia_id    = int(conferencia_id) if conferencia_id else None,
             observacoes       = observacoes or None,
@@ -1864,6 +1867,7 @@ def editar_familia(familia_id):
         cep              = request.form.get('cep', '').strip()
         qtd_moradores    = request.form.get('quantidade_moradores', '').strip()
         qtd_criancas     = request.form.get('quantidade_criancas', '').strip()
+        qtd_adolescentes = request.form.get('quantidade_adolescentes', '').strip()
         vicentino_id     = request.form.get('vicentino_id', '').strip()
         conferencia_id   = request.form.get('conferencia_id', '').strip() or None
         observacoes      = request.form.get('observacoes', '').strip()
@@ -1905,8 +1909,9 @@ def editar_familia(familia_id):
         familia.cidade              = cidade
         familia.estado              = estado or None
         familia.cep                 = cep or None
-        familia.quantidade_moradores = int(qtd_moradores) if qtd_moradores.isdigit() else None
-        familia.quantidade_criancas  = int(qtd_criancas)  if qtd_criancas.isdigit()  else None
+        familia.quantidade_moradores    = int(qtd_moradores)    if qtd_moradores.isdigit()    else None
+        familia.quantidade_criancas     = int(qtd_criancas)     if qtd_criancas.isdigit()     else None
+        familia.quantidade_adolescentes = int(qtd_adolescentes) if qtd_adolescentes.isdigit() else None
         familia.vicentino_id        = int(vicentino_id)
         familia.conferencia_id      = int(conferencia_id) if conferencia_id else None
         familia.observacoes         = observacoes or None

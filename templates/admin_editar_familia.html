@@ -110,10 +110,16 @@
                                    value="{{ familia.quantidade_moradores or '' }}">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Nº de Crianças (0–12 anos)</label>
+                            <label class="form-label">Nº de Crianças (0–11 anos)</label>
                             <input type="number" name="quantidade_criancas" class="form-control"
                                    min="0" max="99"
                                    value="{{ familia.quantidade_criancas or '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Nº de Adolescentes (12–17 anos)</label>
+                            <input type="number" name="quantidade_adolescentes" class="form-control"
+                                   min="0" max="99"
+                                   value="{{ familia.quantidade_adolescentes or '' }}">
                         </div>
                     </div>
 
