@@ -65,17 +65,6 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('cadastrar_vicentino') }}">
-                                <i class="fas fa-plus me-1"></i> Cadastrar Vicentino
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('cadastrar_familia') }}">
-                                <i class="fas fa-house-chimney-medical me-1"></i> Cadastrar Família
-                            </a>
-                        </li>
                     {% endif %}
 
                     {% if session.get('vicentino_id') %}
@@ -89,6 +78,22 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('listar_familias') }}">
                                 <i class="fas fa-house me-1"></i> Famílias
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-house me-1"></i> Início
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-house-chimney me-1"></i> Minhas famílias
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-clipboard-list me-1"></i> Meus atendimentos
                             </a>
                         </li>
                         {% endif %}

@@ -115,13 +115,6 @@
                                    min="0" max="99"
                                    value="{{ familia.quantidade_criancas or '' }}">
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Situação</label>
-                            <select name="status" class="form-select">
-                                <option value="ativa"   {% if familia.status == 'ativa'   %}selected{% endif %}>Ativa</option>
-                                <option value="inativa" {% if familia.status == 'inativa' %}selected{% endif %}>Inativa</option>
-                            </select>
-                        </div>
                     </div>
 
                     <hr class="my-3">
