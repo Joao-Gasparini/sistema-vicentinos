@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<div class="mt-2" style="max-width: 680px;">
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="{{ url_for('meus_atendimentos') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h5 class="mb-0 fw-bold">Registrar novo atendimento</h5>
+    </div>
+
+    <form method="POST" action="{{ url_for('registrar_atendimento') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Família <span class="text-danger">*</span></label>
+                    <select name="familia_id" class="form-select" required>
+                        <option value="">Selecione uma família</option>
+                        {% for f in familias %}
+                            <option value="{{ f.id }}">{{ f.nome_responsavel }} — {{ f.bairro }}, {{ f.cidade }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if not familias %}
+                        <small class="text-muted">Nenhuma família ativa está atribuída a você.</small>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Data do atendimento <span class="text-danger">*</span></label>
+                        <input type="date" name="data_atendimento" class="form-control"
+                               required max="{{ hoje }}" value="{{ hoje }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Horário</label>
+                        <input type="time" name="horario" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Descrição do atendimento</label>
+                    <textarea name="descricao" class="form-control" rows="4"
+                              placeholder="Descreva como foi o atendimento..."></textarea>
+                </div>
+
+                <div class="mb-1">
+                    <label class="form-label fw-semibold">Itens doados</label>
+                    <textarea name="itens_doados" class="form-control" rows="3"
+                              placeholder="Liste os itens doados durante o atendimento..."></textarea>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-check me-1"></i> Salvar atendimento
+            </button>
+            <a href="{{ url_for('meus_atendimentos') }}" class="btn btn-outline-secondary">
+                Cancelar
+            </a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

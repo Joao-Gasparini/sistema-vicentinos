@@ -20,7 +20,7 @@ import re
 import os
 
 from config import Config
-from models import db, Vicentino, Conselho, Conferencia, Familia
+from models import db, Vicentino, Conselho, Conferencia, Familia, Atendimento
 
 # =========================================================
 # INICIALIZAÇÃO DA APLICAÇÃO
@@ -1462,6 +1462,82 @@ def editar_familia(familia_id):
         vicentinos_data=json.dumps(vicentinos_data),
         vicentinos=vicentinos,
     )
+
+
+@app.route('/meus_atendimentos')
+def meus_atendimentos():
+    """Lista os atendimentos registrados pelo vicentino logado."""
+    if 'vicentino_id' not in session:
+        flash('Faça login para acessar o sistema.', 'warning')
+        return redirect(url_for('login'))
+    if session.get('tipo') == 'admin':
+        return redirect(url_for('dashboard'))
+
+    atendimentos = (
+        Atendimento.query
+        .filter_by(vicentino_id=session['vicentino_id'])
+        .order_by(Atendimento.data_atendimento.desc(), Atendimento.horario.desc())
+        .all()
+    )
+    return render_template('meus_atendimentos.html', atendimentos=atendimentos)
+
+
+@app.route('/registrar_atendimento', methods=['GET', 'POST'])
+def registrar_atendimento():
+    """Formulário para o vicentino registrar um novo atendimento a uma família."""
+    if 'vicentino_id' not in session:
+        flash('Faça login para acessar o sistema.', 'warning')
+        return redirect(url_for('login'))
+    if session.get('tipo') == 'admin':
+        return redirect(url_for('dashboard'))
+
+    vicentino_id = session['vicentino_id']
+    familias = Familia.query.filter_by(vicentino_id=vicentino_id, status='ativa').all()
+
+    if request.method == 'POST':
+        familia_id  = request.form.get('familia_id', '').strip()
+        data_str    = request.form.get('data_atendimento', '').strip()
+        horario_str = request.form.get('horario', '').strip()
+        descricao   = request.form.get('descricao', '').strip()
+        itens_doados = request.form.get('itens_doados', '').strip()
+
+        if not familia_id or not data_str:
+            flash('Família e data são obrigatórios.', 'danger')
+            return render_template('registrar_atendimento.html', familias=familias, hoje=datetime.today().strftime('%Y-%m-%d'))
+
+        familia = Familia.query.filter_by(id=familia_id, vicentino_id=vicentino_id).first()
+        if not familia:
+            flash('Família inválida.', 'danger')
+            return render_template('registrar_atendimento.html', familias=familias, hoje=datetime.today().strftime('%Y-%m-%d'))
+
+        try:
+            data_atendimento = datetime.strptime(data_str, '%Y-%m-%d').date()
+        except ValueError:
+            flash('Data inválida.', 'danger')
+            return render_template('registrar_atendimento.html', familias=familias, hoje=datetime.today().strftime('%Y-%m-%d'))
+
+        horario = None
+        if horario_str:
+            try:
+                horario = datetime.strptime(horario_str, '%H:%M').time()
+            except ValueError:
+                pass
+
+        atendimento = Atendimento(
+            familia_id=int(familia_id),
+            vicentino_id=vicentino_id,
+            data_atendimento=data_atendimento,
+            horario=horario,
+            descricao=descricao or None,
+            itens_doados=itens_doados or None,
+        )
+        db.session.add(atendimento)
+        db.session.commit()
+
+        flash('Atendimento registrado com sucesso!', 'success')
+        return redirect(url_for('meus_atendimentos'))
+
+    return render_template('registrar_atendimento.html', familias=familias, hoje=datetime.today().strftime('%Y-%m-%d'))
 
 
 if __name__ == '__main__':

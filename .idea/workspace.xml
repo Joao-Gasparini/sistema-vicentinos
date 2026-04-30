@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="cards removidos, cep trava os campos cidade e estado">
+    <list default="true" id="2ad47316-b787-4556-b571-6ed466d12290" name="Changes" comment="adicione tres botões no cabeçalho para o usuario normal, início, Minhas famílias e Meus atendimentos">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin_editar_familia.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_editar_familia.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -268,7 +269,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776974128232</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="adicione tres botões no cabeçalho para o usuario normal, início, Minhas famílias e Meus atendimentos">
+      <option name="closed" value="true" />
+      <created>1777572104931</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1777572104932</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -297,6 +306,7 @@
     <MESSAGE value="conselhos e conferencias criados no banco,&#10;select 2 para selecionar conselho e conferencia, a conferencia so aparece ao selecionar o conselho, tela listar vicentinos criada e editar vicentinos também" />
     <MESSAGE value="claude.md" />
     <MESSAGE value="cards removidos, cep trava os campos cidade e estado" />
-    <option name="LAST_COMMIT_MESSAGE" value="cards removidos, cep trava os campos cidade e estado" />
+    <MESSAGE value="adicione tres botões no cabeçalho para o usuario normal, início, Minhas famílias e Meus atendimentos" />
+    <option name="LAST_COMMIT_MESSAGE" value="adicione tres botões no cabeçalho para o usuario normal, início, Minhas famílias e Meus atendimentos" />
   </component>
 </project>
