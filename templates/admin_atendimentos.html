@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">Atendimentos Realizados</h3>
+    </div>
+
+    <!-- FILTROS -->
+    <form method="GET" class="card shadow-sm p-3 mb-4">
+        <div class="row g-2 mb-2">
+
+            <div class="col-md-4">
+                <label class="form-label mb-1 text-muted small">Vicentino</label>
+                <select name="vicentino_id" class="form-select select2">
+                    <option value="">Todos os Vicentinos</option>
+                    {% for v in vicentinos %}
+                        <option value="{{ v.id }}"
+                            {% if request.args.get('vicentino_id') == v.id|string %}selected{% endif %}>
+                            {{ v.nome }} {{ v.sobrenome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label mb-1 text-muted small">Família</label>
+                <select name="familia_id" class="form-select select2">
+                    <option value="">Todas as Famílias</option>
+                    {% for f in familias %}
+                        <option value="{{ f.id }}"
+                            {% if request.args.get('familia_id') == f.id|string %}selected{% endif %}>
+                            {{ f.nome_responsavel }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label mb-1 text-muted small">Data início</label>
+                <input type="date" name="data_inicio" class="form-control"
+                       value="{{ request.args.get('data_inicio', '') }}">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label mb-1 text-muted small">Data fim</label>
+                <input type="date" name="data_fim" class="form-control"
+                       value="{{ request.args.get('data_fim', '') }}">
+            </div>
+
+        </div>
+
+        <div class="row g-2 justify-content-end">
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i> Filtrar
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('admin_atendimentos') }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-times me-1"></i> Limpar
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <!-- CONTAGEM -->
+    <p class="text-muted small mb-3">
+        {{ atendimentos|length }} atendimento(s) encontrado(s)
+    </p>
+
+    <!-- LISTA -->
+    {% if atendimentos %}
+        {% for a in atendimentos %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-body py-3">
+
+                <div class="d-flex align-items-start gap-4">
+
+                    <!-- ÍCONE -->
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle border bg-light"
+                             style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-clipboard-check fa-lg" style="color: #0064B6;"></i>
+                        </div>
+                    </div>
+
+                    <!-- DADOS -->
+                    <div class="flex-grow-1">
+
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <h5 class="mb-0 fw-bold">{{ a.familia.nome_responsavel }}</h5>
+                            <span class="badge" style="background-color: #0064B6;">
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ a.data_atendimento.strftime('%d/%m/%Y') }}
+                                {% if a.horario %}· {{ a.horario.strftime('%H:%M') }}{% endif %}
+                            </span>
+                        </div>
+
+                        <div class="row row-cols-2 row-cols-md-3 g-2 mb-2">
+                            <div class="col">
+                                <small class="text-muted d-block">Endereço</small>
+                                <span class="small">{{ a.familia.endereco }}, {{ a.familia.numero }}{% if a.familia.complemento %} – {{ a.familia.complemento }}{% endif %}</span>
+                            </div>
+                            <div class="col">
+                                <small class="text-muted d-block">Bairro / Cidade</small>
+                                <span class="small">{{ a.familia.bairro }} – {{ a.familia.cidade }}</span>
+                            </div>
+                            <div class="col">
+                                <small class="text-muted d-block">Conferência</small>
+                                <span class="small">{{ a.familia.conferencia_rel.nome if a.familia.conferencia_rel else '-' }}</span>
+                            </div>
+                        </div>
+
+                        {% if a.descricao %}
+                            <p class="mb-1 small">
+                                <i class="fas fa-comment-alt me-1 text-muted"></i>
+                                {{ a.descricao }}
+                            </p>
+                        {% endif %}
+
+                        {% if a.itens_doados %}
+                            <p class="mb-0 small text-muted">
+                                <i class="fas fa-box-open me-1"></i>
+                                <strong>Itens doados:</strong> {{ a.itens_doados }}
+                            </p>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <!-- RODAPÉ: informações do registro -->
+                <div class="border-top mt-3 pt-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <span class="small text-muted">
+                        <i class="fas fa-user me-1"></i>
+                        Atendimento realizado por <strong>{{ a.vicentino.nome }} {{ a.vicentino.sobrenome }}</strong>
+                    </span>
+                    <span class="small text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Registrado em {{ a.data_registro.strftime('%d/%m/%Y às %H:%M') if a.data_registro else '-' }}
+                    </span>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+            <p class="mb-0">Nenhum atendimento encontrado.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

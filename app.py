@@ -1216,6 +1216,61 @@ def editar_perfil():
         tempo_restante=tempo_restante,
     )
 
+@app.route('/admin/atendimentos')
+@admin_required
+def admin_atendimentos():
+    """Lista todos os atendimentos registrados, com filtros. Apenas admin."""
+    vicentino_raw = request.args.get('vicentino_id', '')
+    familia_raw   = request.args.get('familia_id', '')
+    data_inicio   = request.args.get('data_inicio', '')
+    data_fim      = request.args.get('data_fim', '')
+
+    query = Atendimento.query
+
+    if vicentino_raw:
+        try:
+            query = query.filter_by(vicentino_id=int(vicentino_raw))
+        except (ValueError, TypeError):
+            pass
+
+    if familia_raw:
+        try:
+            query = query.filter_by(familia_id=int(familia_raw))
+        except (ValueError, TypeError):
+            pass
+
+    if data_inicio:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento >= datetime.strptime(data_inicio, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+
+    if data_fim:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento <= datetime.strptime(data_fim, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+
+    atendimentos = (
+        query
+        .order_by(Atendimento.data_atendimento.desc(), Atendimento.horario.desc())
+        .all()
+    )
+    vicentinos = Vicentino.query.filter_by(tipo='vicentino', status='ativo').order_by(Vicentino.nome).all()
+    familias   = Familia.query.order_by(Familia.nome_responsavel).all()
+
+    return render_template(
+        'admin_atendimentos.html',
+        atendimentos=atendimentos,
+        vicentinos=vicentinos,
+        familias=familias,
+    )
+
+
 # =============================
 @app.route('/admin/vicentinos')
 @admin_required
