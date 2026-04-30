@@ -1464,22 +1464,93 @@ def editar_familia(familia_id):
     )
 
 
-@app.route('/meus_atendimentos')
-def meus_atendimentos():
-    """Lista os atendimentos registrados pelo vicentino logado."""
+@app.route('/minhas_familias')
+def minhas_familias():
+    """Lista as famílias atribuídas ao vicentino logado, com filtros."""
     if 'vicentino_id' not in session:
         flash('Faça login para acessar o sistema.', 'warning')
         return redirect(url_for('login'))
     if session.get('tipo') == 'admin':
         return redirect(url_for('dashboard'))
 
+    vicentino_id  = session['vicentino_id']
+    nome_busca    = request.args.get('nome', '').strip()
+    bairro_busca  = request.args.get('bairro', '').strip()
+    status_filtro = request.args.get('status', '')
+
+    query = Familia.query.filter_by(vicentino_id=vicentino_id)
+
+    if nome_busca:
+        query = query.filter(Familia.nome_responsavel.ilike(f'%{nome_busca}%'))
+    if bairro_busca:
+        query = query.filter(Familia.bairro.ilike(f'%{bairro_busca}%'))
+
+    todas = query.order_by(Familia.nome_responsavel).all()
+
+    if status_filtro == 'ativa':
+        ativas   = [f for f in todas if f.status == 'ativa']
+        inativas = []
+    elif status_filtro == 'inativa':
+        ativas   = []
+        inativas = [f for f in todas if f.status == 'inativa']
+    else:
+        ativas   = [f for f in todas if f.status == 'ativa']
+        inativas = [f for f in todas if f.status == 'inativa']
+
+    return render_template('minhas_familias.html', ativas=ativas, inativas=inativas)
+
+
+@app.route('/meus_atendimentos')
+def meus_atendimentos():
+    """Lista os atendimentos registrados pelo vicentino logado, com filtros."""
+    if 'vicentino_id' not in session:
+        flash('Faça login para acessar o sistema.', 'warning')
+        return redirect(url_for('login'))
+    if session.get('tipo') == 'admin':
+        return redirect(url_for('dashboard'))
+
+    vicentino_id = session['vicentino_id']
+    familia_raw  = request.args.get('familia_id', '')
+    data_inicio  = request.args.get('data_inicio', '')
+    data_fim     = request.args.get('data_fim', '')
+
+    query = Atendimento.query.filter_by(vicentino_id=vicentino_id)
+
+    if familia_raw:
+        try:
+            query = query.filter_by(familia_id=int(familia_raw))
+        except (ValueError, TypeError):
+            pass
+
+    if data_inicio:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento >= datetime.strptime(data_inicio, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+
+    if data_fim:
+        try:
+            query = query.filter(
+                Atendimento.data_atendimento <= datetime.strptime(data_fim, '%Y-%m-%d').date()
+            )
+        except ValueError:
+            pass
+
     atendimentos = (
-        Atendimento.query
-        .filter_by(vicentino_id=session['vicentino_id'])
+        query
         .order_by(Atendimento.data_atendimento.desc(), Atendimento.horario.desc())
         .all()
     )
-    return render_template('meus_atendimentos.html', atendimentos=atendimentos)
+    familias = (
+        Familia.query
+        .filter_by(vicentino_id=vicentino_id)
+        .order_by(Familia.nome_responsavel)
+        .all()
+    )
+
+    return render_template('meus_atendimentos.html', atendimentos=atendimentos, familias=familias)
 
 
 @app.route('/registrar_atendimento', methods=['GET', 'POST'])
